@@ -1,0 +1,103 @@
+body {
+  font-size: 14px;
+}
+h2 {
+  font-size: 26px;
+}
+.chart-wrapper ul li {
+  font-size: 1.6rem;
+}
+.chart-stage-flex svg {
+  max-width: none !important;
+}
+.DiagrammeR g .acsClass .label {
+  color: #fff !important;
+}
+.navbar-inverse {
+    background-color: #85859B99;
+    border-color: #85859B;
+}
+.storyboard-nav .sbframelist ul li.active {
+  background-color: #85859B;
+}
+/*
+.storyboard-nav .sbframelist ul li i,
+.chart-title > strong > i {
+ color: #A0312B;
+}
+.storyboard-nav .sbframelist ul li.active i {
+  color: #fff;
+}
+*/
+.sbframe-commentary .dataTables_scroll > .dataTables_scrollBody {
+  height: unset !important;
+}
+.my-overflow-scroll .chart-wrapper .chart-stage {
+  overflow: scroll;
+}
+.sbframe-commentary ol {
+    padding-left: 22px;
+}
+.mermaid .sectionTitle {
+    font-size: 16px;
+}
+.mermaid .actor {
+  fill: #85859B;
+  stroke: #CCCCFF;
+}
+.mermaid .actor-line {
+    stroke: #85859B;
+    stroke-width: 1.0;
+}
+.mermaid text.actor {
+    fill: #FBFBFB;
+    stroke: none;
+    ont-family: 'trebuchet ms', verdana, arial;
+    font-size: 16px;
+}
+.mermaid .messageLine0 {
+    stroke: #FF99FF;
+    stroke-width: 2.5;
+    stroke-dasharray: "2 2";
+}
+.mermaid .messageLine1 {
+    stroke: #FF99FF;
+    stroke-width: 2.5;
+    stroke-dasharray: "2 2";
+}
+.mermaid #arrowhead {
+    fill: #FF99FF;
+}
+.mermaid .messageText {
+    fill: black;
+    stroke: none;
+    font-family: 'trebuchet ms', verdana, arial;
+    font-size: 14px;
+}
+.mermaid.DiagrammeR {
+//    background: #CCCCFF;
+}
+// .mermaid rect.actor {
+//  width: 180px;
+//  -webkit-transform : scale(1,1);
+//}
+.mermaid .loopText {
+    fill: black;
+    stroke: none;
+    font-family: 'trebuchet ms', verdana, arial;
+}
+.mermaid .labelText {
+    fill: black;
+    stroke: none;
+    font-family: 'trebuchet ms', verdana, arial;
+}
+.mermaid .loopLine {
+    stroke-width: 2;
+    stroke-dasharray: "2 2";
+    marker-end: "url(#arrowhead)";
+    stroke: #6CB2E1;
+}
+.mermaid .labelBox {
+    stroke: #CCCCFF;
+    fill: #6CB2E1;
+}

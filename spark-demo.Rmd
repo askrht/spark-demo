@@ -1,0 +1,429 @@
+---
+title: "Spark Demo"
+output:
+  flexdashboard::flex_dashboard:
+    css: styles.css
+    favicon: favicon.png
+    fig_mobile: no
+    mathjax: null
+    orientation: rows
+    storyboard: yes
+    theme: flatly
+date: '2019-07-19'
+---
+
+```{r setup, eval=TRUE, include=FALSE, echo=FALSE, results="asis", message=FALSE, warning=FALSE, fig.cap=T}
+library(flexdashboard)
+library(htmltools)
+library(ggplot2)
+library(tidyverse)
+library(lubridate)
+library(visNetwork)
+library(DiagrammeR)
+library(tidyr)
+library(scales)
+library(dygraphs)
+library(stringr)
+library(DT)
+# install.packages(c("flexdashboard", "DiagrammeR", "htmltools", "ggplot2", "tidyverse", "lubridate","visNetwork", "gsheet", "tidyr", "scales", "dygraphs", "stringr", "DT"))
+htmltools::tagList(rmarkdown::html_dependency_font_awesome())
+knitr::opts_chunk$set(eval=TRUE, echo=FALSE, include=TRUE, results="asis", message=FALSE, warning=FALSE)
+```
+
+### **Executive Summary**. Problem definition, highlights, project plan {data-commentary-width=300}
+<div>
+
+**30 second pitch**
+
+- Implement an Apache Spark Core application which aggregates the customer and sales data sets in HDFS
+- Report total sales revenue in each state for the year, month, day and hour granularity
+
+**highlights**
+
+- Data is stored in text format
+- Design considerations for both finite and a large number of customers
+- Uses Apache Spark's Python APIs for RDD
+- Performance may be affected if the data is skewed for example if a handful of customers are responsible for the majority of sale. A python script has been provided to check the skewness of input data
+- Data pipeline executes inside the Docker containers, on a development machine. Executing a single `make` command will build the Docker containers for Apache Spark and Apache Hadoop, initialize the environment, verify input data, generate output report, stop and remove the containers
+- Complete source code, runnable docker containers and documentation, including the source code of this presentation is available in a public repository on [Github](https://github.com/askrht/spark-demo.git)
+- This is a <span style="background-color:yellow;">proof of concept only</span> and it is not production ready, yet. The project plan below provides an estimate of how long it might take to get it ready for production
+
+**project plan**
+
+<div style="display: flex; flex-direction: row; width:100%;>
+```{r}
+library(DiagrammeR)
+mermaid("
+gantt
+dateFormat  YYYY-MM-DD
+
+title timeline
+section compliance
+approvals : active, compliance_1, 2019-08-05, 10d
+
+section development
+develop poc             : develop_1, after compliance_1, 10d
+main development        : develop_2, after develop_1, 10d
+
+section test
+system                  : test_1, after develop_2, 10d
+performance             : test_2, after develop_2, 10d
+
+section deploy
+release and deploy      : deploy_1, after test_1,  5d
+
+")
+```
+Timeline may be pulled in by paralleling some tasks. Security, compliance and scope could affect the plan
+
+</div>
+
+***
+
+**compliance checklist**
+
+1. <input type="checkbox" unchecked enabled> there may be customer identifiable information in the input data</input>
+1. <input type="checkbox" checked enabled> there is no customer identifiable information in the output data</input>
+1. <input type="checkbox" unchecked enabled> security</input>
+1. <input type="checkbox" unchecked enabled> GDPR compliant</input>
+1. <input type="checkbox" unchecked enabled> architectural approval</input>
+
+Figure below shows the topology of how the data pipeline executes on a single node development machine
+
+<div style="display:flex; flex-direction:row; width:80%; justify-content:center"">
+```{r fig.height=3, fig.width=3}
+grViz("
+ digraph topology {
+  graph [bgcolor='#1C1F2B00',
+         overlap=true,
+         center=true,
+         fontname=Helvetica,
+         rankdir=TB]
+  node [fontname=Helvetica,
+        fontsize=22,
+        fillcolor='#85859B',
+        style=filled,
+        fontcolor='#FBFBFB',
+        penwidth=1.5,
+        shape=box,
+        color='#CCCCFF']
+  edge [color='#FF99FF',
+        fontcolor='#FBFBFB',
+        fontname=Helvetica,
+        penwidth=1]
+  'make' [color=green];
+  'make' -> 'Docker';
+  subgraph clusterDocker {
+     style=filled; fillcolor='#CCCCFF'; fontcolor='#FBFBFB'; color='#CCCCFF'; fontsize=18;
+     'Hadoop';
+     'Spark';
+  }
+  'Docker' -> 'Spark';
+  'Docker' -> 'Hadoop';
+}")
+```
+</div>
+
+```{r}
+ # 123#AAA Inc#1 First Ave	Mountain View CA#94040
+customers <-
+list.files('./', 'customers\\.dat', full.names=T, recursive=T) %>%
+  tibble(File = .) %>%
+  mutate(Data = lapply(File, read_delim, delim="#", col_names=F)) %>%
+  unnest(Data) %>%
+  select(-File) %>%
+  rename(cid=X1, name=X2, state=X3, zipcode=X4) %>%
+  mutate(state=substr(state, nchar(state)-1, nchar(state))) %>%
+  group_by(state) %>%
+  tally() %>%
+  arrange(state)
+```
+
+### **Data processing pipeline**. A simplified view of transformations applied to input data by the script `sales_by_states.py` {data-commentary-width=500} 
+```{r eval=TRUE, include=TRUE, echo=FALSE, results="asis", message=FALSE, warning=FALSE}
+
+grViz("
+digraph 'data pipeline' {
+  graph [bgcolor='#1C1F2B00',
+         overlap=true,
+         center=true,
+         fontname=Helvetica,
+         rankdir=TB]
+  node [fontname=Helvetica,
+        fontsize=18,
+        fillcolor='#85859B',
+        style=filled,
+        fontcolor='#FBFBFB',
+        penwidth=1.5,
+        color='#CCCCFF']
+  edge [color='#FF99FF',
+        penwidth=1]
+  node [shape=box]
+  100[label='prepare data', fillcolor='#CCCCFF', fontcolor='#1C1F2B', shape='component'];
+  110[label='read customer *states* from HDFS\ninto an RDD, ignoring blank lines'];
+  120[label='map customer id to state'];
+  130[label='read customer *sales* from HDFS\ninto an RDD, ignoring blank lines'];
+  140[label='map customer id to sales'];
+  150[label='join sales RDD with states RDD\non customer id'];
+  160[label='drop customer identifiable information\nalso drop customer id'];
+  100->110->120->130->140->150->160;
+  200[label='aggregate data', fillcolor='#CCCCFF', fontcolor='#1C1F2B', shape='component'];
+  210[label='aggregate by hour'];
+  220[label='aggregate by day'];
+  230[label='aggregate by month'];
+  240[label='aggregate by year'];
+  250[label='aggregate by state'];
+  260[label='union above aggregates\ninto a single RDD'];
+  270[label='sort and format'];
+  280[label='store in HDFS', shape='cylinder'];
+  200->210->220->230->240->250->260->270->280;
+}")
+```
+
+### **Demo**, walk through the code and discuss design considerations {data-commentary-width=300} 
+
+**Prerequisite**
+
+  1. Tested on `Ubuntu 16.04`
+  1. Requires `docker 18.09.6` and `docker-compose 1.24.0` to be available and ready to use
+  1. Requires `make`
+  1. Execute the commands in bash
+  1. Assumes that input data is clean
+
+  You may need to configure a proxy to pull the docker images. <strong>Do not run in production !!</strong>
+
+**Start here**
+
+  Data pipeline executes inside the docker containers, on a development machine. The entire pipeline is automated through a self documented makefile. Executing `make` command in the root of this repository will build the docker containers for Spark and Hadoop, start them, verify input data and generate the report
+
+  Either execute `make` in the root of the repository or execute individual commands. Most commands are idempotent
+
+  ```sh
+  make setup      # only needs to be executed once to build the docker images
+  make start
+  make report
+  ```
+
+  Explore other commands using `make help`
+
+  ```
+  $ make help
+  clean-output                   Delete output data
+  connect                        To enter the Spark container
+  report                         Print the output report and save it to a file
+  setup                          Build Docker containers
+  start                          Starts Spark and Hadoop. Jupyter is at localhost:8888
+  stop                           Stop and remove the containers
+  verify                         Check if the input data is skewed
+  ```
+
+  Output of `make report` is shown below. It is saved locally as well as in Hadoop
+
+  ```
+  $ make report
+  AK#2016#8#1#11#123458
+  AK#2016#8#1##123458
+  AK#2016#8###123458
+  AK#2016####123458
+  AK#####123458
+  AL#2017#8#1#10#123457
+  AL#2017#8#1##123457
+  AL#2017#8###123457
+  AL#2017####123457
+  AL#2016#8#1#12#123459
+  AL#2016#8#1##123459
+  AL#2016#8###123459
+  AL#2016####123459
+  AL#####246916
+  CA#2016#2#1#9#246912
+  CA#2016#2#1##246912
+  CA#2016#2###246912
+  CA#2016####246912
+  CA#####246912
+  OR#2016#2#1#9#123456
+  OR#2016#2#1##123456
+  OR#2016#2###123456
+  OR#2016####123456
+  OR#####123456
+  The report has been saved to hdfs://hadoop:9000/output and locally at dataout/sales_by-state.txt
+  ```
+
+**When finished**
+
+  Execute `make stop` on your host machine. This stops and removes the containers
+
+***
+
+**Areas of improvement**
+
+1. HDFS should preferably be on a separate machine or a cluster. Same for Apache Spark
+1. Better management of data at rest
+1. Auto generate test data of adequate size and auto load it in hadoop
+1. Add unit, functional and integration tests
+1. Add performance tests and harvest performance metrics for Apache Spark
+
+### **Is my data skewed?** {data-commentary-width=300} 
+
+Run `check_input.py` from the host machine
+
+```sh
+$ time make verify 
+customers-by-state (count: 4, mean: 1.25, stdev: 0.4330127018922193, max: 2.0, min: 1.0)
+('CA', 2)
+('AK', 1)
+('AL', 1)
+('OR', 1)
+customers-by-transactions (count: 5, mean: 1.2, stdev: 0.4, max: 2.0, min: 1.0)
+('123', 1)
+('789', 2)
+('456', 1)
+('124', 1)
+('101112', 1)
+
+real  0m8.836s
+user  0m0.041s
+sys   0m0.025s
+```
+
+Now run the same script directly inside the container
+
+```sh
+$ make connect
+jovyan@jupyter:~/work$ time spark-submit check_input.py 2>/dev/null
+customers-by-state (count: 4, mean: 1.25, stdev: 0.4330127018922193, max: 2.0, min: 1.0)
+('CA', 2)
+('AK', 1)
+('AL', 1)
+('OR', 1)
+customers-by-transactions (count: 5, mean: 1.2, stdev: 0.4, max: 2.0, min: 1.0)
+('123', 1)
+('789', 2)
+('456', 1)
+('124', 1)
+('101112', 1)
+
+real  0m8.280s
+user  0m14.407s
+sys   0m1.373s
+```
+
+***
+
+1. If the data is skewed, it may not be partitioned properly and could affect performance
+1. Quantiles could provide a more effective measure of skewness
+1. Notice the difference between `real`, `user` and `sys` times
+1. Notice that the `user` time is more than `real` time inside the container
+
+### **What does the output data look like?** {data-commentary-width=350} 
+
+```{r}
+format_date <- function(year, month, day, hour) {
+  d <- paste(year,month,day,hour,sep='-')
+  return(d)
+}
+# AK 2016 8 1 11 123458
+sales <- list.files('./datain', 'clean_output\\.dat', full.names=T, recursive=T) %>%
+  tibble(File = .) %>%
+  mutate(Data = lapply(File, read_delim, delim=" ", col_names=F)) %>%
+  unnest(Data) %>%
+  select(-File) %>%
+  rename(state=X1, year=X2, month=X3, day=X4, hour=X5, sales=X6) %>%
+  filter(hour > 0) %>%
+  mutate(date = as.POSIXct(format_date(year, month, day, hour), '%Y-%m-%d-%H', tz='UTC')) %>%
+  select(state, date, sales) %>%
+  group_by(state, date)
+
+sales %>%  spread(state, sales) %>%
+  remove_rownames %>% column_to_rownames(var="date") %>%
+  dygraph(main="Sales by States", group = "state") %>%
+  dyLegend(width = 400) %>%
+  dyOptions(stackedGraph=TRUE, useDataTimezone=FALSE) %>%
+  dyRangeSelector(dateWindow=c('2016-10-30', '2017-05-01'))
+```
+
+***
+
+```{r eval=TRUE}
+DT::datatable(sales,
+  extensions = c('Buttons', 'ColReorder', 'KeyTable'),
+  options = list(
+    dom='Bfrtip',
+    rownames = FALSE,
+    buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
+    pageLength=10,
+    lengthChange=TRUE
+), rownames= FALSE)
+rm(sales)
+```
+
+
+
+### Check Spark performance metrics using `sysstat` {data-commentary-width=300} 
+
+```{r}
+# date time   CPU %user %nice %system %iowait %steal %idle
+# 2019-07-14 21:37:37   all 2.04 0.00 2.81 0.00 0.00 95.15
+cpu <-
+list.files('./dataout', 'jupyter_CPU\\.dat', full.names=T, recursive=T) %>%
+  tibble(File = .) %>% mutate(Data = lapply(File, read_table2, col_names=T)) %>% unnest(Data) %>% select(-File) %>%
+  mutate(date = as.POSIXct(paste(.$date, .$time), format="%Y-%m-%d %H:%M:%S"), tz='UTC') %>%
+  mutate(cpu = round(100 - `%idle`)) %>% select(date, cpu) %>% na.omit() %>%
+  group_by(date) %>% summarize(cpu = round(quantile(cpu,  0.75, na.rm=TRUE)))
+
+# date time   DEV tps rkB/s wkB/s areq-sz aqu-sz await svctm %util
+# 2019-07-14 21:37:37   dev7-0 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00
+disk <-
+list.files('./dataout', 'jupyter_DEV\\.dat', full.names=T, recursive=T) %>%
+  tibble(File = .) %>% mutate(Data = lapply(File, read_table2, col_names=T)) %>% unnest(Data) %>% select(-File) %>%
+  mutate(date = as.POSIXct(paste(.$date, .$time), format="%Y-%m-%d %H:%M:%S"), tz='UTC') %>%
+  mutate(disk = round(`%util`)) %>% select(date, disk) %>% na.omit() %>%
+  group_by(date) %>% summarize(disk = round(quantile(disk,  0.995, na.rm=TRUE)))
+
+# date time   runq-sz plist-sz ldavg-1 ldavg-5 ldavg-15 blocked
+# 2019-07-14 21:37:37   0 2051 0.74 0.74 0.90 0
+runq <-
+list.files('./dataout', 'runq-sz\\.dat', full.names=T, recursive=T) %>%
+  tibble(File = .) %>% mutate(Data = lapply(File, read_table2, col_names=T)) %>% unnest(Data) %>% select(-File) %>%
+  mutate(date = as.POSIXct(paste(.$date, .$time), format="%Y-%m-%d %H:%M:%S"), tz='UTC') %>%
+  mutate(runq = round(`runq-sz`)) %>% select(date, runq) %>% na.omit() %>%
+  group_by(date) %>% summarize(runq = round(quantile(runq, 0.99, na.rm=TRUE)))
+all <- cpu %>% inner_join(disk, by=c('date')) %>% inner_join(runq, by=c('date')) %>% arrange(date)
+rm(cpu, disk, runq)
+all %>%
+  ungroup() %>% remove_rownames %>% column_to_rownames(var="date") %>%
+  dygraph(main="Spark sysstat metrics", group="sar") %>%
+  dyRangeSelector()
+```
+
+***
+
+This chart shows `sysstat` metrics for 4 executions of `sales_by_states.py` job. The metrics are reported by the quantile given in the table below
+
+metric|unit|quantile
+:----|:----|:----
+cpu|%busy|75%
+disk|%util|99.5%
+runq|unit|99%
+
+Folder `dataout` contains sysstat metrics for CPU, memory, network, disk and proc, after you run the `collect-sar` and `parse-sar` commands inside the `jupyter` container. `head -n2 dataout/*.dat`
+
+### How can we improve **performance**?  {data-commentary-width=300} 
+
+- Consider Scala
+- Consider Dataframes
+- Consider Streaming
+- Tune the Scheduler
+- Consider Apache Parquet for data at rest
+- Partitioning
+- Read multiple files
+- Data locality
+- Collect statistics
+- Improve serialization
+- Check memory pressure and garbage collection
+- Increase parallelism
+- Filtering
+- Caching
+- Joins
+- Aggregation
+- Broadcast variables
+

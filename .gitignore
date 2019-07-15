@@ -1,0 +1,5 @@
+.ipynb_checkpoints/
+.RData
+.Rhistory
+/spark-demo.html
+/dataout

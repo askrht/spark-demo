@@ -1,0 +1,27 @@
+version: '3.7'
+services:
+  jupyter:
+    build: ./jupyter
+    hostname: jupyter
+    container_name: jupyter
+    image: jupyter
+    user: root
+    volumes:
+      - "./:/home/jovyan/work"
+    ports:
+      - "8888:8888"
+      - "18080:18080"
+      - "4040:4040"
+      - "4041:4041"
+      - "4042:4042"
+    env_file: ./jupyter/docker-compose.env
+  hadoop:
+    build: ./hadoop
+    hostname: hadoop
+    container_name: hadoop
+    image: hadoop
+    user: root
+    volumes:
+      - "./:/work"
+    ports:
+      - "9000:9000"
