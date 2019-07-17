@@ -1,4 +1,4 @@
-A mobile friendly presentation can be viewed [here](https://askrht.github.io/spark-demo) It has been generated from the Rmarkdown present inside `docs`
+A mobile friendly presentation can be viewed [here](https://askrht.github.io/spark-demo/) It has been generated from the Rmarkdown present inside `docs`
 
 **Prerequisite**
 
