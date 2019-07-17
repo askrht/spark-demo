@@ -127,16 +127,11 @@ grViz("
 ```{r}
  # 123#AAA Inc#1 First Ave	Mountain View CA#94040
 customers <-
-list.files('./', 'customers\\.dat', full.names=T, recursive=T) %>%
-  tibble(File = .) %>%
-  mutate(Data = lapply(File, read_delim, delim="#", col_names=F)) %>%
-  unnest(Data) %>%
-  select(-File) %>%
+list.files('../datain', 'customers\\.dat', full.names=T, recursive=T) %>%
+  tibble(File = .) %>% mutate(Data = lapply(File, read_delim, delim="#", col_names=F)) %>% unnest(Data) %>% select(-File) %>%
   rename(cid=X1, name=X2, state=X3, zipcode=X4) %>%
   mutate(state=substr(state, nchar(state)-1, nchar(state))) %>%
-  group_by(state) %>%
-  tally() %>%
-  arrange(state)
+  group_by(state) %>% tally() %>% arrange(state)
 ```
 
 ### **Data processing pipeline**. A simplified view of transformations applied to input data by the script `sales_by_states.py` {data-commentary-width=500} 
@@ -322,7 +317,7 @@ format_date <- function(year, month, day, hour) {
   return(d)
 }
 # AK 2016 8 1 11 123458
-sales <- list.files('./datain', 'clean_output\\.dat', full.names=T, recursive=T) %>%
+sales <- list.files('../datain', 'clean_output\\.dat', full.names=T, recursive=T) %>%
   tibble(File = .) %>%
   mutate(Data = lapply(File, read_delim, delim=" ", col_names=F)) %>%
   unnest(Data) %>%
@@ -364,7 +359,7 @@ rm(sales)
 # date time   CPU %user %nice %system %iowait %steal %idle
 # 2019-07-14 21:37:37   all 2.04 0.00 2.81 0.00 0.00 95.15
 cpu <-
-list.files('./dataout', 'jupyter_CPU\\.dat', full.names=T, recursive=T) %>%
+list.files('../dataout', 'jupyter_CPU\\.dat', full.names=T, recursive=T) %>%
   tibble(File = .) %>% mutate(Data = lapply(File, read_table2, col_names=T)) %>% unnest(Data) %>% select(-File) %>%
   mutate(date = as.POSIXct(paste(.$date, .$time), format="%Y-%m-%d %H:%M:%S"), tz='UTC') %>%
   mutate(cpu = round(100 - `%idle`)) %>% select(date, cpu) %>% na.omit() %>%
@@ -373,7 +368,7 @@ list.files('./dataout', 'jupyter_CPU\\.dat', full.names=T, recursive=T) %>%
 # date time   DEV tps rkB/s wkB/s areq-sz aqu-sz await svctm %util
 # 2019-07-14 21:37:37   dev7-0 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00
 disk <-
-list.files('./dataout', 'jupyter_DEV\\.dat', full.names=T, recursive=T) %>%
+list.files('../dataout', 'jupyter_DEV\\.dat', full.names=T, recursive=T) %>%
   tibble(File = .) %>% mutate(Data = lapply(File, read_table2, col_names=T)) %>% unnest(Data) %>% select(-File) %>%
   mutate(date = as.POSIXct(paste(.$date, .$time), format="%Y-%m-%d %H:%M:%S"), tz='UTC') %>%
   mutate(disk = round(`%util`)) %>% select(date, disk) %>% na.omit() %>%
@@ -382,17 +377,18 @@ list.files('./dataout', 'jupyter_DEV\\.dat', full.names=T, recursive=T) %>%
 # date time   runq-sz plist-sz ldavg-1 ldavg-5 ldavg-15 blocked
 # 2019-07-14 21:37:37   0 2051 0.74 0.74 0.90 0
 runq <-
-list.files('./dataout', 'runq-sz\\.dat', full.names=T, recursive=T) %>%
+list.files('../dataout', 'runq-sz\\.dat', full.names=T, recursive=T) %>%
   tibble(File = .) %>% mutate(Data = lapply(File, read_table2, col_names=T)) %>% unnest(Data) %>% select(-File) %>%
   mutate(date = as.POSIXct(paste(.$date, .$time), format="%Y-%m-%d %H:%M:%S"), tz='UTC') %>%
   mutate(runq = round(`runq-sz`)) %>% select(date, runq) %>% na.omit() %>%
   group_by(date) %>% summarize(runq = round(quantile(runq, 0.99, na.rm=TRUE)))
-all <- cpu %>% inner_join(disk, by=c('date')) %>% inner_join(runq, by=c('date')) %>% arrange(date)
+sysstat <- cpu %>% inner_join(disk, by=c('date')) %>% inner_join(runq, by=c('date')) %>% arrange(date)
 rm(cpu, disk, runq)
-all %>%
+sysstat %>%
   ungroup() %>% remove_rownames %>% column_to_rownames(var="date") %>%
   dygraph(main="Spark sysstat metrics", group="sar") %>%
   dyRangeSelector()
+rm(sysstat)
 ```
 
 ***

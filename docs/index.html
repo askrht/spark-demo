@@ -1,0 +1,2952 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="date" content="2019-07-19" />
+
+
+<title>Spark Demo</title>
+
+<meta property="og:title" content="Spark Demo" />
+
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' />
+
+<link rel="icon" href="favicon.png">
+
+<style type="text/css">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<script type="text/javascript">
+window.FlexDashboardComponents = [];
+</script>
+
+<script src="site_libs/jquery-1.12.4/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+<script src="site_libs/sly-1.6.1/sly.min.js"></script>
+<script src="site_libs/stickytableheaders-0.1.19/jquery.stickytableheaders.min.js"></script>
+<script src="site_libs/htmlwidgets-1.3/htmlwidgets.js"></script>
+<script src="site_libs/d3-3.3.8/d3.min.js"></script>
+<script src="site_libs/dagre-0.4.0/dagre-d3.min.js"></script>
+<link href="site_libs/mermaid-0.3.0/dist/mermaid.css" rel="stylesheet" />
+<script src="site_libs/mermaid-0.3.0/dist/mermaid.slim.min.js"></script>
+<link href="site_libs/DiagrammeR-styles-0.2/styles.css" rel="stylesheet" />
+<script src="site_libs/chromatography-0.1/chromatography.js"></script>
+<script src="site_libs/DiagrammeR-binding-1.0.1/DiagrammeR.js"></script>
+<script src="site_libs/viz-0.3/viz.js"></script>
+<script src="site_libs/grViz-binding-1.0.1/grViz.js"></script>
+<link href="site_libs/dygraphs-1.1.1/dygraph.css" rel="stylesheet" />
+<script src="site_libs/dygraphs-1.1.1/dygraph-combined.js"></script>
+<script src="site_libs/dygraphs-1.1.1/shapes.js"></script>
+<script src="site_libs/moment-2.8.4/moment.js"></script>
+<script src="site_libs/moment-timezone-0.2.5/moment-timezone-with-data.js"></script>
+<script src="site_libs/moment-fquarter-1.0.0/moment-fquarter.min.js"></script>
+<script src="site_libs/dygraphs-binding-1.1.1.6/dygraphs.js"></script>
+<link href="site_libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
+<script src="site_libs/datatables-binding-0.7/datatables.js"></script>
+<link href="site_libs/dt-core-1.10.16/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="site_libs/dt-core-1.10.16/css/jquery.dataTables.extra.css" rel="stylesheet" />
+<script src="site_libs/dt-core-1.10.16/js/jquery.dataTables.min.js"></script>
+<script src="site_libs/jszip-1.10.16/jszip.min.js"></script>
+<script src="site_libs/pdfmake-1.10.16/pdfmake.min.js"></script>
+<script src="site_libs/pdfmake-1.10.16/vfs_fonts.js"></script>
+<link href="site_libs/dt-ext-buttons-1.10.16/css/buttons.dataTables.min.css" rel="stylesheet" />
+<script src="site_libs/dt-ext-buttons-1.10.16/js/dataTables.buttons.min.js"></script>
+<script src="site_libs/dt-ext-buttons-1.10.16/js/buttons.flash.min.js"></script>
+<script src="site_libs/dt-ext-buttons-1.10.16/js/buttons.html5.min.js"></script>
+<script src="site_libs/dt-ext-buttons-1.10.16/js/buttons.colVis.min.js"></script>
+<script src="site_libs/dt-ext-buttons-1.10.16/js/buttons.print.min.js"></script>
+<link href="site_libs/dt-ext-colreorder-1.10.16/css/colReorder.dataTables.min.css" rel="stylesheet" />
+<script src="site_libs/dt-ext-colreorder-1.10.16/js/dataTables.colReorder.min.js"></script>
+<link href="site_libs/dt-ext-keytable-1.10.16/css/keyTable.dataTables.min.css" rel="stylesheet" />
+<script src="site_libs/dt-ext-keytable-1.10.16/js/dataTables.keyTable.min.js"></script>
+<link href="site_libs/crosstalk-1.0.0/css/crosstalk.css" rel="stylesheet" />
+<script src="site_libs/crosstalk-1.0.0/js/crosstalk.min.js"></script>
+<style type="text/css">
+
+/*
+ Dashboard CSS from Keen IO Dashboards
+ (https://github.com/keen/dashboards)
+*/
+
+body {
+  background: #f2f2f2;
+  padding: 60px 0 0 8px; /* padding-top overridden by theme */
+}
+
+body hr {
+  border-color: #d7d7d7;
+  margin: 10px 0;
+}
+
+.navbar-inverse .navbar-nav > li > a,
+.navbar .navbar-brand {
+  text-decoration: none;
+}
+
+.navbar-logo {
+  margin-top: 1px;
+}
+
+.navbar-logo img {
+  margin-right: 12px;
+}
+
+.navbar-author {
+  margin-left: 10px;
+  font-size: 15px;
+}
+
+.navbar .dropdown-menu .fa {
+  min-width: 20px;
+}
+
+.navbar .dropdown-menu {
+  min-width: 150px;
+  max-height: 500px;
+  overflow: auto;
+}
+
+.chart-wrapper,
+.nav-tabs-custom,
+.sbframe-commentary
+{
+  background: #fff;
+  border: 1px solid #e2e2e2;
+  border-radius: 3px;
+  margin-bottom: 8px;
+  margin-right: 8px;
+}
+
+.chart-title {
+  border-bottom: 1px solid #d7d7d7;
+  color: #666;
+  font-size: 14px;
+  font-weight: 300;
+  padding: 7px 10px 4px;
+}
+
+.chart-wrapper .chart-title:empty {
+  display: none;
+}
+
+.chart-wrapper .chart-stage {
+  overflow: hidden;
+  padding: 5px 10px;
+  position: relative;
+}
+
+.chart-wrapper .chart-notes {
+  background: #fbfbfb;
+  border-top: 1px solid #e2e2e2;
+  color: #808080;
+  font-size: 12px;
+  padding: 8px 10px 5px;
+}
+
+/*
+ CSS for handling flexbox layout
+*/
+
+#dashboard-container {
+  visibility: hidden;
+}
+
+.tab-content>.dashboard-page-wrapper.active {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.dashboard-page-wrapper {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+      -ms-flex-direction: column;
+          flex-direction: column;
+}
+
+.dashboard-row-orientation {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+      -ms-flex-direction: column;
+          flex-direction: column;
+}
+
+.dashboard-row {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: row;
+      -ms-flex-direction: row;
+          flex-direction: row;
+}
+
+.dashboard-row-flex {
+  -webkit-box-flex: 1;
+  -webkit-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+}
+
+.dashboard-column-orientation {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: row;
+      -ms-flex-direction: row;
+          flex-direction: row;
+}
+
+.dashboard-column {
+  -webkit-box-flex: 1;
+  -webkit-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+      -ms-flex-direction: column;
+          flex-direction: column;
+}
+
+.chart-wrapper-flex {
+  -webkit-box-flex: 1;
+  -webkit-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+      -ms-flex-direction: column;
+          flex-direction: column;
+}
+
+.chart-stage-flex {
+  -webkit-box-flex: 1;
+  -webkit-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  position: relative;
+}
+
+.chart-shim {
+  position: absolute;
+  left: 8px; top: 8px; right: 8px; bottom: 8px;
+}
+
+.no-padding .chart-shim {
+  left: 0; top: 0; right: 0; bottom: 0;
+}
+
+.flowing-content-shim {
+  overflow: auto;
+  left: 0; top: 0; right: 0; bottom: 0;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.flowing-content-container {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.chart-stage .table-bordered {
+  border: none;
+}
+
+.chart-stage .table-bordered > tbody > tr > th,
+.chart-stage .table-bordered > tfoot > tr > th,
+.chart-stage .table-bordered > tbody > tr > td,
+.chart-stage .table-bordered > tfoot > tr > td {
+  border: none;
+}
+
+.chart-stage .table-bordered > tbody > tr > td {
+  border-top: 1px solid #dddddd;
+}
+
+.chart-stage .table-bordered > thead > tr > th {
+  border: none;
+  border-bottom: 2px solid #dddddd;
+}
+
+.bootstrap-table table>thead {
+  background-color: #fff;
+}
+
+.bootstrap-table table.data,
+.bootstrap-table table.shiny-table {
+  width: inherit !important;
+}
+
+.bootstrap-table table.data>tbody>tr>th,
+.bootstrap-table table.shiny-table>tbody>tr>th {
+  border-top: none;
+  border-bottom: 2px solid #dddddd;
+  padding: 5px;
+}
+
+.bootstrap-table .data td[align=right] {
+  font-family: inherit;
+}
+
+.chart-wrapper form {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.shiny-input-container label {
+  font-weight: normal;
+}
+
+.chart-stage .html-widget {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.chart-stage .html-widget-static-bound {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.chart-stage .shiny-bound-output {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Omit display of empty paragraphs */
+
+.chart-shim>p:empty {
+  display: none;
+}
+
+.chart-stage>p:empty {
+  display: none;
+}
+
+/* Omit display of special knitr options div*/
+
+.chart-stage .knitr-options {
+  display: none;
+}
+
+/* Automatically resizing images */
+
+.image-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+}
+
+.image-container img {
+  opacity: 0;
+  overflow: hidden;
+}
+
+/* Value box */
+
+.value-box {
+  border-radius: 2px;
+  position: relative;
+  display: block;
+  margin-right: 8px;
+  margin-bottom: 8px;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+}
+
+.value-box > .inner {
+  padding: 10px;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.value-box .value {
+  font-size: 38px;
+  font-weight: bold;
+  margin: 0 0 3px 0;
+  white-space: nowrap;
+  padding: 0;
+}
+
+.value-box .caption {
+  font-size: 15px;
+}
+.value-box .caption > small {
+  display: block;
+  font-size: 13px;
+  margin-top: 5px;
+}
+
+.value-box .icon i {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  font-size: 80px;
+  color: rgba(0, 0, 0, 0.15);
+}
+
+.linked-value:hover {
+  cursor: pointer;
+}
+
+.value-box.linked-value:hover {
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* STORYBOARD */
+
+.storyboard-nav button {
+  background: transparent;
+  border: 0;
+  opacity: .3;
+  outline: none;
+  padding: 0;
+}
+
+.storyboard-nav button:hover,
+.storyboard-nav button:hover {
+  opacity: .5;
+}
+
+.storyboard-nav button:disabled,
+.storyboard-nav button:disabled {
+  opacity: .1;
+}
+
+.storyboard-nav .sbnext,
+.storyboard-nav .sbprev {
+  float: left;
+  width: 2%;
+  height: 120px;
+  font-size: 50px;
+}
+
+.storyboard-nav .sbprev {
+  text-align: left;
+  width: 2%;
+}
+
+.storyboard-nav .sbnext {
+  float: right;
+  text-align: right;
+  margin-right: 8px;
+}
+
+.storyboard-nav .sbframelist {
+  margin: 0 auto;
+  width: 94%;
+  height: 120px;
+  overflow: hidden;
+  text-shadow: none;
+  margin-bottom: 8px;
+}
+
+.storyboard-nav .sbframelist ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+.storyboard-nav .sbframelist ul li {
+  float: left;
+  width: 270px;
+  height: 100%;
+  padding: 10px 10px 10px 10px;
+  margin-right: 8px;
+  background: #fff;
+  border: 1px solid #e2e2e2;
+  border-radius: 3px;
+  color: #3a3c47;
+  text-align: left;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.storyboard-nav .sbframelist ul li:last-child {
+  margin-right: 0px;
+}
+
+.storyboard-nav .sbframelist ul li.active {
+  color: #fff;
+  background: #B8B8B8;
+}
+
+.sbframe-commentary {
+  width: 300px;
+  background: #fbfbfb;
+  font-size: 14px;
+}
+
+.sbframe-commentary ul {
+  padding-left: 22px;
+}
+
+.sbframe.active {
+  display: flex;
+}
+
+.sbframe:not(.active) {
+  display: none;
+}
+
+/* NAV TABS */
+
+.nav-tabs-custom > .nav-tabs {
+  margin: 0;
+  border-bottom: 1px solid #d7d7d7;
+  color: #666;
+  font-size: 14px;
+  font-weight: 300;
+  border-top-right-radius: 3px;
+  border-top-left-radius: 3px;
+}
+.nav-tabs-custom > .nav-tabs > li {
+  border-top: 3px solid transparent;
+  margin-bottom: -1px;
+  margin-right: 5px;
+}
+.nav-tabs-custom > .nav-tabs > li > a,
+.nav-tabs-custom > .nav-tabs > li > a:active {
+  color: #666;
+  font-weight: 300;
+  font-size: 14px;
+  border-radius: 0;
+  padding: 3px 10px 5px;
+  text-transform: none;
+}
+
+.nav-tabs-custom > .nav-tabs > li:not(.active) > a {
+  border-bottom-color: transparent;
+}
+
+.nav-tabs-custom > .nav-tabs > li > a.text-muted {
+  color: #999;
+}
+.nav-tabs-custom > .nav-tabs > li > a,
+.nav-tabs-custom > .nav-tabs > li > a:hover {
+  background: transparent;
+  margin: 0;
+}
+.nav-tabs-custom > .nav-tabs > li > a:hover {
+  color: #999;
+}
+.nav-tabs-custom > .nav-tabs > li:not(.active) > a:hover,
+.nav-tabs-custom > .nav-tabs > li:not(.active) > a:focus,
+.nav-tabs-custom > .nav-tabs > li:not(.active) > a:active {
+  border-color: transparent;
+}
+.nav-tabs-custom > .nav-tabs > li.active {
+  border-top-color: #3c8dbc;
+}
+.nav-tabs-custom > .nav-tabs > li.active > a,
+.nav-tabs-custom > .nav-tabs > li.active:hover > a {
+  background-color: #fff;
+  color: #666;
+}
+.nav-tabs-custom > .nav-tabs > li.active > a {
+  border-top-color: transparent;
+  border-left-color: #d7d7d7;
+  border-right-color: #d7d7d7;
+}
+.nav-tabs-custom > .nav-tabs > li:first-of-type {
+  margin-left: 0;
+}
+.nav-tabs-custom > .nav-tabs > li:first-of-type.active > a {
+  border-left-color: transparent;
+}
+.nav-tabs-custom > .nav-tabs.pull-right {
+  float: none !important;
+}
+.nav-tabs-custom > .nav-tabs.pull-right > li {
+  float: right;
+}
+.nav-tabs-custom > .nav-tabs.pull-right > li:first-of-type {
+  margin-right: 0;
+}
+.nav-tabs-custom > .nav-tabs.pull-right > li:first-of-type > a {
+  border-left-width: 1px;
+}
+.nav-tabs-custom > .nav-tabs.pull-right > li:first-of-type.active > a {
+  border-left-color: #d7d7d7;
+  border-right-color: transparent;
+}
+.nav-tabs-custom > .nav-tabs > li.header {
+  line-height: 35px;
+  padding: 0 10px;
+  font-size: 20px;
+  color: #666;
+}
+.nav-tabs-custom > .nav-tabs > li.header > .fa,
+.nav-tabs-custom > .nav-tabs > li.header > .glyphicon,
+.nav-tabs-custom > .nav-tabs > li.header > .ion {
+  margin-right: 5px;
+}
+.nav-tabs-custom > .tab-content {
+  background: #fff;
+  padding: 0;
+  border-bottom-right-radius: 3px;
+  border-bottom-left-radius: 3px;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.nav-tabs-custom > .tab-content > .chart-wrapper {
+  background: #fff;
+  border: none;
+  margin: 0;
+}
+
+
+.nav-tabs-custom > .tab-content > .active {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.nav-tabs-custom .dropdown.open > a:active,
+.nav-tabs-custom .dropdown.open > a:focus {
+  background: transparent;
+  color: #999;
+}
+
+
+@media (max-width: 767px) {
+  .value-box {
+    text-align: center;
+    margin-right: 8px;
+  }
+  .value-box .icon {
+    display: none;
+  }
+}
+
+/* Fixed position sidebar */
+
+.section.sidebar {
+  position: fixed;
+  top: 51px; /* overridden by theme */
+  left: 0;
+  bottom: 0;
+  border-right: 1px solid #e2e2e2;
+  background-color: white; /* overridden by theme */
+  padding-left: 10px;
+  padding-right: 10px;
+  visibility: hidden;
+  overflow: auto;
+}
+
+.section.sidebar form p:first-child {
+  margin-top: 10px;
+}
+
+/* Embedded source code */
+
+#flexdashboard-source-code {
+  display: none;
+}
+
+.featherlight-content #flexdashboard-source-code {
+  display: inline-block;
+}
+
+.featherlight-content {
+  width: 80%;
+  max-width: 800px;
+  padding: 0 !important;
+  border-bottom: none !important;
+}
+
+.featherlight:last-of-type {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.featherlight-inner {
+  width: 100%;
+}
+
+.featherlight-content pre {
+  margin: 0;
+  border: 0;
+  background: #fff;
+  font-size: 12px;
+}
+
+.unselectable {
+  -ms-user-select: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: -moz-none;
+  -o-user-select: none;
+  user-select: none;
+}
+
+#flexdashboard-source-code code {
+  -ms-user-select: text;
+  -webkit-user-select: text;
+  -khtml-user-select: text;
+  -moz-user-select: text;
+  -o-user-select: text;
+  user-select: text;
+}
+
+/* DataTables Tweaks */
+
+.dataTables_filter input[type="search"] {
+  -webkit-appearance: searchfield;
+  outline: none;
+}
+
+.dataTables_wrapper.no-footer
+.dataTables_info {
+  padding-top: 0;
+}
+
+
+table.dataTable thead th {
+  border-bottom: 1px solid #d7d7d7;
+}
+
+.dataTables_wrapper.no-footer .dataTables_scrollBody {
+  border-bottom: 1px solid #d7d7d7;
+}
+
+/* Mobile phone only CSS */
+
+.desktop-layout div.section.mobile {
+  display: none;
+}
+
+.mobile-layout div.section.no-mobile {
+  display: none;
+}
+
+.mobile-figure {
+  display: none;
+}
+
+
+
+body {
+  padding-top: 69px;
+}
+
+.section.sidebar {
+  top: 60px;
+  background-color: rgba(24, 188, 156, 0.1);
+}
+
+.value-box {
+  color: #fff;
+}
+
+.bg-primary {
+  background-color: rgba(44, 62, 80, 0.7);
+}
+
+.storyboard-nav .sbframelist ul li.active {
+  background-color: rgba(44, 62, 80, 0.7);
+}
+
+.nav-tabs-custom > .nav-tabs > li.active {
+  border-top-color: rgba(44, 62, 80, 0.7);
+}
+
+
+.bg-info {
+  background-color: rgba(52, 152, 219, 0.7);
+}
+
+.bg-warning {
+  background-color: rgba(243, 156, 18, 0.7);
+}
+
+.bg-success {
+  background-color: rgba(24, 188, 156, 0.7);
+}
+
+.bg-danger {
+  background-color: rgba(231, 76, 60, 0.7);
+}
+
+@media only screen and (min-width: 768px) {
+html, body {
+  height: 100%;
+}
+
+#dashboard-container {
+  height: 100%;
+}
+}
+</style>
+
+
+<link rel="stylesheet" href="styles.css" type="text/css" />
+
+</head>
+
+<body>
+
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+<div class="container-fluid">
+<div class="navbar-header">
+
+<button id="navbar-button" type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+<span class="icon-bar"></span>
+<span class="icon-bar"></span>
+<span class="icon-bar"></span>
+</button>
+
+<span class="navbar-logo pull-left">
+  
+</span>
+<span class="navbar-brand">
+  Spark Demo
+  <span class="navbar-author">
+      2019-07-19
+      </span>
+</span>
+
+</div>
+<div id="navbar" class="navbar-collapse collapse">
+<ul class="nav navbar-nav navbar-left">
+</ul>
+<ul class="nav navbar-nav navbar-right">
+</ul>
+</div><!--/.nav-collapse-->
+</div><!--/.container-->
+</div><!--/.navbar-->
+
+<script type="text/javascript">
+
+
+var FlexDashboard = (function () {
+
+  // initialize options
+  var _options = {};
+
+  var FlexDashboard = function() {
+
+    // default options
+    _options = $.extend(_options, {
+      theme: "cosmo",
+      fillPage: false,
+      orientation: 'columns',
+      storyboard: false,
+      defaultFigWidth: 576,
+      defaultFigHeight: 461,
+      defaultFigWidthMobile: 360,
+      defaultFigHeightMobile: 461,
+      isMobile: false,
+      isPortrait: false
+    });
+  };
+
+  function init(options) {
+
+    // extend default options
+    $.extend(true, _options, options);
+
+    // add ids to sections that don't have them (pandoc won't assign ids
+    // to e.g. sections with titles consisting of only chinese characters)
+    var nextId = 1;
+    $('.level1:not([id]),.level2:not([id]),.level3:not([id])').each(function() {
+      $(this).attr('id', 'dashboard-' + nextId++);
+    });
+
+    // find navbar items
+    var navbarItems = $('#flexdashboard-navbar');
+    if (navbarItems.length)
+      navbarItems = JSON.parse(navbarItems.html());
+    addNavbarItems(navbarItems);
+
+    // find the main dashboard container
+    var dashboardContainer = $('#dashboard-container');
+
+    // resolve mobile classes
+    resolveMobileClasses(dashboardContainer);
+
+    // one time global initialization for components
+    componentsInit(dashboardContainer);
+
+    // look for a global sidebar
+    var globalSidebar = dashboardContainer.find(".section.level1.sidebar");
+    if (globalSidebar.length > 0) {
+
+      // global layout for fullscreen displays
+      if (!isMobilePhone()) {
+
+         // hoist it up to the top level
+         globalSidebar.insertBefore(dashboardContainer);
+
+         // lay it out (set width/positions)
+         layoutSidebar(globalSidebar, dashboardContainer);
+
+      // tuck sidebar into first page for mobile phones
+      } else {
+
+        // convert it into a level3 section
+        globalSidebar.removeClass('sidebar');
+        globalSidebar.removeClass('level1');
+        globalSidebar.addClass('level3');
+        var h1 = globalSidebar.children('h1');
+        var h3 = $('<h3></h3>');
+        h3.html(h1.html());
+        h3.insertBefore(h1);
+        h1.remove();
+
+        // move it into the first page
+        var page = dashboardContainer.find('.section.level1').first();
+        if (page.length > 0)
+          page.prepend(globalSidebar);
+      }
+    }
+
+    // look for pages to layout
+    var pages = $('div.section.level1');
+    if (pages.length > 0) {
+
+        // find the navbar and collapse on clicked
+        var navbar = $('#navbar');
+        navbar.on("click", "a[data-toggle!=dropdown]", null, function () {
+           navbar.collapse('hide');
+        });
+
+        // envelop the dashboard container in a tab content div
+        dashboardContainer.wrapInner('<div class="tab-content"></div>');
+
+        pages.each(function(index) {
+
+          // lay it out
+          layoutDashboardPage($(this));
+
+          // add it to the navbar
+          addToNavbar($(this), index === 0);
+
+        });
+
+    } else {
+
+      // remove the navbar and navbar button if we don't
+      // have any navbuttons
+      if (navbarItems.length === 0) {
+        $('#navbar').remove();
+        $('#navbar-button').remove();
+      }
+
+      // add the storyboard class if requested
+      if (_options.storyboard)
+        dashboardContainer.addClass('storyboard');
+
+      // layout the entire page
+      layoutDashboardPage(dashboardContainer);
+    }
+
+    // if we are in shiny we need to trigger a window resize event to
+    // force correct layout of shiny-bound-output elements
+    if (isShinyDoc())
+      $(window).trigger('resize');
+
+    // make main components visible
+    $('.section.sidebar').css('visibility', 'visible');
+    dashboardContainer.css('visibility', 'visible');
+
+    // handle location hash
+    handleLocationHash();
+
+    // intialize prism highlighting
+    initPrismHighlighting();
+
+    // record mobile and orientation state then register a handler
+    // to refresh if it changes
+    _options.isMobile = isMobilePhone();
+    _options.isPortrait = isPortrait();
+    $(window).on('resize', function() {
+      if (_options.isMobile !== isMobilePhone() ||
+          _options.isPortrait !== isPortrait()) {
+        window.location.reload();
+      }
+    });
+
+    // trigger layoutcomplete event
+    dashboardContainer.trigger('flexdashboard:layoutcomplete');
+  }
+
+  function resolveMobileClasses(dashboardContainer) {
+     // add top level layout class
+    dashboardContainer.addClass(isMobilePhone() ? 'mobile-layout' :
+                                                  'desktop-layout');
+
+    // look for .mobile sections and add .no-mobile to their peers
+    var mobileSections = $('.section.mobile');
+    mobileSections.each(function() {
+       var id = $(this).attr('id');
+       var nomobileId = id.replace(/-\d+$/, '');
+       $('#' + nomobileId).addClass('no-mobile');
+    });
+  }
+
+  function addNavbarItems(navbarItems) {
+
+    var navbarLeft = $('ul.navbar-left');
+    var navbarRight = $('ul.navbar-right');
+
+    for (var i = 0; i<navbarItems.length; i++) {
+
+      // get the item
+      var item = navbarItems[i];
+
+      // determine the container
+      var container = null;
+      if (item.align === "left")
+        container = navbarLeft;
+      else
+        container = navbarRight;
+
+      // navbar menu if we have multiple items
+      if (item.items) {
+        var menu = navbarMenu(null, item.icon, item.title, container);
+        for (var j = 0; j<item.items.length; j++) {
+          var subItem = item.items[j];
+          var li = $('<li></li>');
+          li.append(navbarLink(subItem.icon, subItem.title, subItem.href, subItem.target));
+          menu.append(li);
+        }
+      } else {
+        var li = $('<li></li>');
+        li.append(navbarLink(item.icon, item.title, item.href, item.target));
+        container.append(li);
+      }
+    }
+  }
+
+  // create or get a reference to an existing dropdown menu
+  function navbarMenu(id, icon, title, container) {
+    var existingMenu = [];
+    if (id)
+      existingMenu = container.children('#' + id);
+    if (existingMenu.length > 0) {
+      return existingMenu.children('ul');
+    } else {
+      var li = $('<li></li>');
+      if (id)
+        li.attr('id', id);
+      li.addClass('dropdown');
+      // auto add "Share" title on mobile if necessary
+      if (!title && icon && (icon === "fa-share-alt") && isMobilePhone())
+        title = "Share";
+      if (title) {
+        title = title + ' <span class="caret"></span>';
+      }
+      var a = navbarLink(icon, title, "#");
+      a.addClass('dropdown-toggle');
+      a.attr('data-toggle', 'dropdown');
+      a.attr('role', 'button');
+      a.attr('aria-expanded', 'false');
+      li.append(a);
+      var ul = $('<ul class="dropdown-menu"></ul>');
+      ul.attr('role', 'menu');
+      li.append(ul);
+      container.append(li);
+      return ul;
+    }
+  }
+
+  function addToNavbar(page, active) {
+
+    // capture the id and data-icon attribute (if any)
+    var id = page.attr('id');
+    var icon = page.attr('data-icon');
+    var navmenu = page.attr('data-navmenu');
+
+    // get hidden state (transfer this to navbar)
+    var hidden = page.hasClass('hidden');
+    page.removeClass('hidden');
+
+    // sanitize the id for use with bootstrap tabs
+    id = id.replace(/[.\/?&!#<>]/g, '').replace(/\s/g, '_');
+    page.attr('id', id);
+
+    // get the wrapper
+    var wrapper = page.closest('.dashboard-page-wrapper');
+
+    // move the id to the wrapper
+    page.removeAttr('id');
+    wrapper.attr('id', id);
+
+    // add the tab-pane class to the wrapper
+    wrapper.addClass('tab-pane');
+    if (active)
+      wrapper.addClass('active');
+
+    // get a reference to the h1, discover it's id and title, then remove it
+    var h1 = wrapper.find('h1').first();
+    var title = h1.html();
+    h1.remove();
+
+    // create a navbar item
+    var li = $('<li></li>');
+    var a = navbarLink(icon, title, '#' + id);
+    a.attr('data-toggle', 'tab');
+    li.append(a);
+
+    // add it to the navbar (or navbar menu if specified)
+    var container = $('ul.navbar-left');
+    if (navmenu) {
+      var menuId = navmenu.replace(/\s+/g, '');
+      var menu = navbarMenu(menuId, null, navmenu, container);
+      menu.append(li);
+    } else {
+      container.append(li);
+    }
+
+    // hide it if requested
+    if (hidden)
+      li.addClass('hidden');
+  }
+
+  function navbarLink(icon, title, href, target) {
+
+    var a = $('<a></a>');
+    if (icon) {
+
+      // get the name of the icon set and icon
+      var dashPos = icon.indexOf("-");
+      var iconSet = icon.substring(0, dashPos);
+      var iconName = icon.substring(dashPos + 1);
+
+      // create the icon
+      var iconElement = $('<span class="' + iconSet + ' ' + icon + '"></span>');
+      if (title)
+        iconElement.css('margin-right', '7px');
+      a.append(iconElement);
+      // if href is null see if we can auto-generate based on icon (e.g. social)
+      if (!href)
+        maybeGenerateLinkFromIcon(iconName, a);
+    }
+    if (title)
+      a.append(title);
+
+    // add the href.
+    if (href) {
+      if (href === "source_embed") {
+        a.attr('href', '#');
+        a.attr('data-featherlight', "#flexdashboard-source-code");
+        a.featherlight({
+            beforeOpen: function(event){
+              $('body').addClass('unselectable');
+            },
+            afterClose: function(event){
+              $('body').removeClass('unselectable');
+            }
+        });
+      } else {
+        a.attr('href', href);
+      }
+    }
+
+    // add the arget
+    if (target)
+      a.attr('target', target);
+
+    return a;
+  }
+
+  // auto generate a link from an icon name (e.g. twitter) when possible
+  function maybeGenerateLinkFromIcon(iconName, a) {
+
+     var serviceLinks = {
+      "twitter": "https://twitter.com/share?text=" + encodeURIComponent(document.title) + "&url="+encodeURIComponent(location.href),
+      "facebook": "https://www.facebook.com/sharer/sharer.php?s=100&p[url]="+encodeURIComponent(location.href),
+      "google-plus": "https://plus.google.com/share?url="+encodeURIComponent(location.href),
+      "linkedin": "https://www.linkedin.com/shareArticle?mini=true&url="+encodeURIComponent(location.href) + "&title=" + encodeURIComponent(document.title),
+      "pinterest": "https://pinterest.com/pin/create/link/?url="+encodeURIComponent(location.href) + "&description=" + encodeURIComponent(document.title)
+    };
+
+    var makeSocialLink = function(a, href) {
+      a.attr('href', '#');
+      a.on('click', function(e) {
+        e.preventDefault();
+        window.open(href);
+      });
+    };
+
+    $.each(serviceLinks, function(key, value) {
+      if (iconName.indexOf(key) !== -1)
+        makeSocialLink(a, value);
+    });
+  }
+
+  // layout a dashboard page
+  function layoutDashboardPage(page) {
+
+    // use a page wrapper so that free form content above the
+    // dashboard appears at the top rather than the side (as it
+    // would without the wrapper in a column orientation)
+    var wrapper = $('<div class="dashboard-page-wrapper"></div>');
+    page.wrap(wrapper);
+
+    // if there are no level2 or level3 headers synthesize a level3
+    // header to contain the (e.g. frame it, scroll container, etc.)
+    var headers = page.find('h2,h3');
+    if (headers.length === 0)
+      page.wrapInner('<div class="section level3"></div>');
+
+    // hoist up any content before level 2 or level 3 headers
+    var children = page.children();
+    children.each(function(index) {
+      if ($(this).hasClass('level2') || $(this).hasClass('level3'))
+        return false;
+      $(this).insertBefore(page);
+    });
+
+    // determine orientation and fillPage behavior for distinct media
+    var orientation, fillPage, storyboard;
+
+    // media: mobile phone
+    if (isMobilePhone()) {
+
+      // if there is a sidebar we need to ensure it's content
+      // is properly framed as an h3
+      var sidebar = page.find('.section.sidebar');
+      sidebar.removeClass('sidebar');
+      sidebar.wrapInner('<div class="section level3"></div>');
+      var h2 = sidebar.find('h2');
+      var h3 = $('<h3></h3>');
+      h3.html(h2.html());
+      h3.insertBefore(h2);
+      h2.remove();
+
+      // wipeout h2 elements then enclose them in a single h2
+      var level2 = page.find('div.section.level2');
+      level2.each(function() {
+        level2.children('h2').remove();
+        level2.children().unwrap();
+      });
+      page.wrapInner('<div class="section level2"></div>');
+
+      // substitute mobile images
+      if (isPortrait()) {
+        var mobileFigures = $('img.mobile-figure');
+        mobileFigures.each(function() {
+          // get the src (might be base64 encoded)
+          var src = $(this).attr('src');
+
+          // find it's peer
+          var id = $(this).attr('data-mobile-figure-id');
+          var img = $('img[data-figure-id=' + id + "]");
+          img.attr('src', src)
+             .attr('width', _options.defaultFigWidthMobile)
+             .attr('height', _options.defaultFigHeightMobile);
+        });
+      }
+
+      // hoist storyboard commentary into it's own section
+      if (page.hasClass('storyboard')) {
+        var commentaryHR = page.find('div.section.level3 hr');
+        commentaryHR.each(function() {
+          var commentary = $(this).nextAll().detach();
+          var commentarySection = $('<div class="section level3"></div>');
+          commentarySection.append(commentary);
+          commentarySection.insertAfter($(this).closest('div.section.level3'));
+          $(this).remove();
+        });
+      }
+
+      // force a non full screen layout by columns
+      orientation = _options.orientation = 'columns';
+      fillPage = _options.fillPage = false;
+      storyboard = _options.storyboard = false;
+
+    // media: desktop
+    } else {
+
+      // determine orientation
+      orientation = page.attr('data-orientation');
+      if (orientation !== 'rows' && orientation != 'columns')
+        orientation = _options.orientation;
+
+      // determine storyboard mode
+      storyboard = page.hasClass('storyboard');
+
+      // fillPage based on options (force for storyboard)
+      fillPage = _options.fillPage || storyboard;
+
+      // handle sidebar
+      var sidebar = page.find('.section.level2.sidebar');
+      if (sidebar.length > 0)
+        layoutSidebar(sidebar, page);
+    }
+
+    // give it and it's parent divs height: 100% if we are in fillPage mode
+    if (fillPage) {
+      page.addClass('vertical-layout-fill');
+      page.css('height', '100%');
+      page.parents('div').css('height', '100%');
+    } else {
+      page.addClass('vertical-layout-scroll');
+    }
+
+    // perform the layout
+    if (storyboard)
+      layoutPageAsStoryboard(page);
+    else if (orientation === 'rows')
+      layoutPageByRows(page, fillPage);
+    else if (orientation === 'columns')
+      layoutPageByColumns(page, fillPage);
+  }
+
+  function layoutSidebar(sidebar, content) {
+
+    // get it out of the header hierarchy
+    sidebar = sidebar.first();
+    if (sidebar.hasClass('level1')) {
+      sidebar.removeClass('level1');
+      sidebar.children('h1').remove();
+    } else if (sidebar.hasClass('level2')) {
+      sidebar.removeClass('level2');
+      sidebar.children('h2').remove();
+    }
+
+    // determine width
+    var sidebarWidth = isTablet() ? 220 : 250;
+    var dataWidth = parseInt(sidebar.attr('data-width'));
+    if (dataWidth)
+      sidebarWidth = dataWidth;
+
+    // set the width and shift the page right to accomodate the sidebar
+    sidebar.css('width', sidebarWidth + 'px');
+    content.css('padding-left', sidebarWidth + 'px');
+
+    // wrap it's contents in a form
+    sidebar.wrapInner($('<form></form>'));
+  }
+
+  function layoutPageAsStoryboard(page) {
+
+    // create storyboard navigation
+    var nav = $('<div class="storyboard-nav"></div>');
+
+    // add navigation buttons
+    var prev = $('<button class="sbprev"><i class="fa fa-angle-left"></i></button>');
+    nav.append(prev);
+    var next= $('<button class="sbnext"><i class="fa fa-angle-right"></i></button>');
+    nav.append(next);
+
+    // add navigation frame
+    var frameList = $('<div class="sbframelist"></div>');
+    nav.append(frameList);
+    var ul = $('<ul></ul>');
+    frameList.append(ul);
+
+     // find all the level3 sections (those are the storyboard frames)
+    var frames = page.find('div.section.level3');
+    frames.each(function() {
+
+      // mark it
+      $(this).addClass('sbframe');
+
+      // divide it into chart content and (optional) commentary
+      $(this).addClass('dashboard-column-orientation');
+
+      // stuff the chart into it's own div w/ flex
+      $(this).wrapInner('<div class="sbframe-component"></div>');
+      setFlex($(this), 1);
+      var frame = $(this).children('.sbframe-component');
+
+      // extract the title from the h3
+      var li = $('<li></li>');
+      var h3 = frame.children('h3');
+      li.html(h3.html());
+      h3.remove();
+      ul.append(li);
+
+      // extract commentary
+      var hr = frame.children('hr');
+      if (hr.length) {
+        var commentary = hr.nextAll().detach();
+        hr.remove();
+        var commentaryFrame = $('<div class="sbframe-commentary"></div>');
+        commentaryFrame.addClass('flowing-content-shim');
+        commentaryFrame.addClass('flowing-content-container');
+        commentaryFrame.append(commentary);
+        $(this).append(commentaryFrame);
+
+        // look for a data-commentary-width attribute
+        var commentaryWidth = $(this).attr('data-commentary-width');
+        if (commentaryWidth)
+          commentaryFrame.css('width', commentaryWidth + 'px');
+      }
+
+      // layout the chart (force flex)
+      var result = layoutChart(frame, true);
+
+      // ice the notes if there are none
+      if (!result.notes)
+        frame.find('.chart-notes').remove();
+
+      // set flex on chart
+      setFlex(frame, 1);
+    });
+
+    // create a div to hold all the frames
+    var frameContent = $('<div class="sbframe-content"></div>');
+    frameContent.addClass('dashboard-row-orientation');
+    frameContent.append(frames.detach());
+
+    // row orientation to stack nav and frame content
+    page.addClass('dashboard-row-orientation');
+    page.append(nav);
+    page.append(frameContent);
+    setFlex(frameContent, 1);
+
+    // initialize sly
+    var sly = new Sly(frameList, {
+    		horizontal: true,
+    		itemNav: 'basic',
+    		smart: true,
+    		activateOn: 'click',
+    		startAt: 0,
+    		scrollBy: 1,
+    		activatePageOn: 'click',
+    		speed: 200,
+    		moveBy: 600,
+    		dragHandle: true,
+    		dynamicHandle: true,
+    		clickBar: true,
+    		keyboardNavBy: 'items',
+    		next: next,
+    		prev: prev
+    	}).init();
+
+    // make first frame active
+    frames.removeClass('active');
+    frames.first().addClass('active');
+
+    // subscribe to frame changed events
+    sly.on('active', function (eventName, itemIndex) {
+      frames.removeClass('active');
+      frames.eq(itemIndex).addClass('active')
+                          .trigger('shown');
+    });
+  }
+
+  function layoutPageByRows(page, fillPage) {
+
+    // row orientation
+    page.addClass('dashboard-row-orientation');
+
+    // find all the level2 sections (those are the rows)
+    var rows = page.find('div.section.level2');
+
+    // if there are no level2 sections then treat the
+    // entire page as if it's a level 2 section
+    if (rows.length === 0) {
+      page.wrapInner('<div class="section level2"></div>');
+      rows = page.find('div.section.level2');
+    }
+
+    rows.each(function () {
+
+      // flags
+      var haveNotes = false;
+      var haveFlexHeight = true;
+
+      // remove the h2
+      $(this).children('h2').remove();
+
+      // check for a tabset
+      var isTabset = $(this).hasClass('tabset');
+      if (isTabset)
+        layoutTabset($(this));
+
+      // give it row layout semantics if it's not a tabset
+      if (!isTabset)
+        $(this).addClass('dashboard-row');
+
+      // find all of the level 3 subheads
+      var columns = $(this).find('div.section.level3');
+
+      // determine figureSizes sizes
+      var figureSizes = chartFigureSizes(columns);
+
+      // fixup the columns
+      columns.each(function(index) {
+
+        // layout the chart (force flex if we are in a tabset)
+        var result = layoutChart($(this), isTabset);
+
+        // update flexHeight state
+        if (!result.flex)
+          haveFlexHeight = false;
+
+        // update state
+        if (result.notes)
+          haveNotes = true;
+
+        // set the column flex based on the figure width
+        // (value boxes will just get the default figure width)
+        var chartWidth = figureSizes[index].width;
+        setFlex($(this), chartWidth + ' ' + chartWidth + ' 0px');
+
+      });
+
+      // remove empty chart note divs
+      if (isTabset)
+        $(this).find('.chart-notes').filter(function() {
+            return $(this).html() === "&nbsp;";
+        }).remove();
+      if (!haveNotes)
+        $(this).find('.chart-notes').remove();
+
+       // make it a flexbox row
+      if (haveFlexHeight)
+        $(this).addClass('dashboard-row-flex');
+
+      // now we can set the height on all the wrappers (based on maximum
+      // figure height + room for title and notes, or data-height on the
+      // container if specified). However, don't do this if there is
+      // no flex on any of the constituent columns
+      var flexHeight = null;
+      var dataHeight = parseInt($(this).attr('data-height'));
+      if (dataHeight)
+        flexHeight = adjustedHeight(dataHeight, columns.first());
+      else if (haveFlexHeight)
+        flexHeight = maxChartHeight(figureSizes, columns);
+      if (flexHeight) {
+        if (fillPage)
+          setFlex($(this), flexHeight + ' ' + flexHeight + ' 0px');
+        else {
+          $(this).css('height', flexHeight + 'px');
+          setFlex($(this), '0 0 ' + flexHeight + 'px');
+        }
+      }
+
+    });
+  }
+
+  function layoutPageByColumns(page, fillPage) {
+
+    // column orientation
+    page.addClass('dashboard-column-orientation');
+
+    // find all the level2 sections (those are the columns)
+    var columns = page.find('div.section.level2');
+
+    // if there are no level2 sections then treat the
+    // entire page as if it's a level 2 section
+    if (columns.length === 0) {
+      page.wrapInner('<div class="section level2"></div>');
+      columns = page.find('div.section.level2');
+    }
+
+    // layout each column
+    columns.each(function (index) {
+
+      // remove the h2
+      $(this).children('h2').remove();
+
+      // make it a flexbox column
+      $(this).addClass('dashboard-column');
+
+      // check for a tabset
+      var isTabset = $(this).hasClass('tabset');
+      if (isTabset)
+        layoutTabset($(this));
+
+      // find all the h3 elements
+      var rows = $(this).find('div.section.level3');
+
+      // get the figure sizes for the rows
+      var figureSizes = chartFigureSizes(rows);
+
+      // column flex is the max row width (or data-width if specified)
+      var flexWidth;
+      var dataWidth = parseInt($(this).attr('data-width'));
+      if (dataWidth)
+        flexWidth = dataWidth;
+      else
+        flexWidth = maxChartWidth(figureSizes);
+      setFlex($(this), flexWidth + ' ' + flexWidth + ' 0px');
+
+      // layout each chart
+      rows.each(function(index) {
+
+        // perform the layout
+        var result = layoutChart($(this), false);
+
+        // ice the notes if there are none
+        if (!result.notes)
+          $(this).find('.chart-notes').remove();
+
+        // set flex height based on figHeight, then adjust
+        if (result.flex) {
+          var chartHeight = figureSizes[index].height;
+          chartHeight = adjustedHeight(chartHeight, $(this));
+          if (fillPage)
+            setFlex($(this), chartHeight + ' ' + chartHeight + ' 0px');
+          else {
+            $(this).css('height', chartHeight + 'px');
+            setFlex($(this), chartHeight + ' ' + chartHeight + ' ' + chartHeight + 'px');
+          }
+        }
+      });
+    });
+  }
+
+  function chartFigureSizes(charts) {
+
+    // sizes
+    var figureSizes = new Array(charts.length);
+
+    // check each chart
+    charts.each(function(index) {
+
+      // start with default
+      figureSizes[index] = {
+        width: _options.defaultFigWidth,
+        height: _options.defaultFigHeight
+      };
+
+      // look for data-height or data-width then knit options
+      var dataWidth = parseInt($(this).attr('data-width'));
+      var dataHeight = parseInt($(this).attr('data-height'));
+      var knitrOptions = $(this).find('.knitr-options:first');
+      var knitrWidth, knitrHeight;
+      if (knitrOptions) {
+        knitrWidth = parseInt(knitrOptions.attr('data-fig-width'));
+        knitrHeight =  parseInt(knitrOptions.attr('data-fig-height'));
+      }
+
+      // width
+      if (dataWidth)
+        figureSizes[index].width = dataWidth;
+      else if (knitrWidth)
+        figureSizes[index].width = knitrWidth;
+
+      // height
+      if (dataHeight)
+        figureSizes[index].height = dataHeight;
+      else if (knitrHeight)
+        figureSizes[index].height = knitrHeight;
+    });
+
+    // return sizes
+    return figureSizes;
+  }
+
+  function maxChartHeight(figureSizes, charts) {
+
+    // first compute the maximum height
+    var maxHeight = _options.defaultFigHeight;
+    for (var i = 0; i<figureSizes.length; i++)
+      if (figureSizes[i].height > maxHeight)
+        maxHeight = figureSizes[i].height;
+
+    // now add offests for chart title and chart notes
+    if (charts.length)
+      maxHeight = adjustedHeight(maxHeight, charts.first());
+
+    return maxHeight;
+  }
+
+  function adjustedHeight(height, chart) {
+    if (chart.length > 0) {
+      var chartTitle = chart.find('.chart-title');
+      if (chartTitle.length)
+        height += chartTitle.first().outerHeight();
+      var chartNotes = chart.find('.chart-notes');
+      if (chartNotes.length)
+        height += chartNotes.first().outerHeight();
+    }
+    return height;
+  }
+
+  function maxChartWidth(figureSizes) {
+    var maxWidth = _options.defaultFigWidth;
+    for (var i = 0; i<figureSizes.length; i++)
+      if (figureSizes[i].width > maxWidth)
+        maxWidth = figureSizes[i].width;
+    return maxWidth;
+  }
+
+  // layout a chart
+  function layoutChart(chart, forceFlex) {
+
+    // state to return
+    var result = {
+      notes: false,
+      flex: false
+    };
+
+    // extract the title
+    var title = extractTitle(chart);
+
+    // find components that apply to this container
+    var components = componentsFind(chart);
+
+    // if it's a custom component then call it and return
+    var customComponents = componentsCustom(components);
+    if (customComponents.length) {
+      componentsLayout(customComponents, title, chart);
+      result.notes = false;
+      result.flex = forceFlex || componentsFlex(customComponents);
+      return result;
+    }
+
+    // put all the content in a chart wrapper div
+    chart.addClass('chart-wrapper');
+    chart.wrapInner('<div class="chart-stage"></div>');
+    var chartContent = chart.children('.chart-stage');
+
+    // flex the content if appropriate
+    result.flex = forceFlex || componentsFlex(components);
+    if (result.flex) {
+      // add flex classes
+      chart.addClass('chart-wrapper-flex');
+      chartContent.addClass('chart-stage-flex');
+
+      // additional shim to break out of flexbox sizing
+      chartContent.wrapInner('<div class="chart-shim"></div>');
+      chartContent = chartContent.children('.chart-shim');
+    }
+
+    // set custom data-padding attribute
+    var pad = chart.attr('data-padding');
+    if (pad) {
+      if (pad === "0")
+        chart.addClass('no-padding');
+      else {
+        pad = pad + 'px';
+        chartContent.css('left', pad)
+                    .css('top', pad)
+                    .css('right', pad)
+                    .css('bottom', pad)
+      }
+    }
+
+    // call compoents
+    componentsLayout(components, title, chartContent);
+
+    // also activate components on shiny output
+    findShinyOutput(chartContent).on('shiny:value',
+      function(event) {
+        var element = $(event.target);
+        setTimeout(function() {
+
+          // see if we opted out of flex based on our output (for shiny
+          // we can't tell what type of output we have until after the
+          // value is bound)
+          var components = componentsFind(element);
+          var flex = forceFlex || componentsFlex(components);
+          if (!flex) {
+            chart.css('height', "");
+            setFlex(chart, "");
+            chart.removeClass('chart-wrapper-flex');
+            chartContent.removeClass('chart-stage-flex');
+            chartContent.children().unwrap();
+          }
+
+          // perform layout
+          componentsLayout(components, title, element.parent());
+        }, 10);
+      });
+
+    // add the title
+    var chartTitle = $('<div class="chart-title"></div>');
+    chartTitle.html(title);
+    chart.prepend(chartTitle);
+
+    // add the notes section
+    var chartNotes = $('<div class="chart-notes"></div>');
+    chartNotes.html('&nbsp;');
+    chart.append(chartNotes);
+
+    // attempt to extract notes if we have a component
+    if (components.length)
+      result.notes = extractChartNotes(chartContent, chartNotes);
+
+    // return result
+    return result;
+  }
+
+  // build a tabset from a section div with the .tabset class
+  function layoutTabset(tabset) {
+
+    // check for fade option
+    var fade = tabset.hasClass("tabset-fade");
+    var navClass = "nav-tabs";
+
+    // determine the heading level of the tabset and tabs
+    var match = tabset.attr('class').match(/level(\d) /);
+    if (match === null)
+      return;
+    var tabsetLevel = Number(match[1]);
+    var tabLevel = tabsetLevel + 1;
+
+    // find all subheadings immediately below
+    var tabs = tabset.find("div.section.level" + tabLevel);
+    if (!tabs.length)
+      return;
+
+    // create tablist and tab-content elements
+    var tabList = $('<ul class="nav ' + navClass + '" role="tablist"></ul>');
+    $(tabs[0]).before(tabList);
+    var tabContent = $('<div class="tab-content"></div>');
+    $(tabs[0]).before(tabContent);
+
+    // build the tabset
+    tabs.each(function(i) {
+
+      // get the tab div
+      var tab = $(tabs[i]);
+
+      // get the id then sanitize it for use with bootstrap tabs
+      var id = tab.attr('id');
+
+      // sanitize the id for use with bootstrap tabs
+      id = id.replace(/[.\/?&!#<>]/g, '').replace(/\s/g, '_');
+      tab.attr('id', id);
+
+      // get the heading element within it and grab it's text
+      var heading = tab.find('h' + tabLevel + ':first');
+      var headingText = heading.html();
+
+      // build and append the tab list item
+      var a = $('<a role="tab" data-toggle="tab">' + headingText + '</a>');
+      a.attr('href', '#' + id);
+      a.attr('aria-controls', id);
+      var li = $('<li role="presentation"></li>');
+      li.append(a);
+      if (i === 0)
+        li.attr('class', 'active');
+      tabList.append(li);
+
+      // set it's attributes
+      tab.attr('role', 'tabpanel');
+      tab.addClass('tab-pane');
+      tab.addClass('tabbed-pane');
+      tab.addClass('no-title');
+      if (fade)
+        tab.addClass('fade');
+      if (i === 0) {
+        tab.addClass('active');
+        if (fade)
+          tab.addClass('in');
+      }
+
+      // move it into the tab content div
+      tab.detach().appendTo(tabContent);
+    });
+
+    // add nav-tabs-custom
+    tabset.addClass('nav-tabs-custom');
+
+    // internal layout is dashboard-column with tab-content flexing
+    tabset.addClass('dashboard-column');
+    setFlex(tabContent, 1);
+  }
+
+  // one time global initialization for components
+  function componentsInit(dashboardContainer) {
+    for (var i=0; i<window.FlexDashboardComponents.length; i++) {
+      var component = window.FlexDashboardComponents[i];
+      if (component.init)
+        component.init(dashboardContainer);
+    }
+  }
+
+  // find components that apply within a container
+  function componentsFind(container) {
+
+    // look for components
+    var components = [];
+    for (var i=0; i<window.FlexDashboardComponents.length; i++) {
+      var component = window.FlexDashboardComponents[i];
+      if (component.find(container).length)
+        components.push(component);
+    }
+
+    // if there were none then use a special flowing content component
+    // that just adds a scrollbar in fillPage mode
+    if (components.length == 0) {
+      components.push({
+        find: function(container) {
+          return container;
+        },
+
+        flex: function(fillPage) {
+          return fillPage;
+        },
+
+        layout: function(title, container, element, fillPage) {
+          if (fillPage) {
+            container.addClass('flowing-content-shim');
+            container.addClass('flowing-content-container');
+          }
+        }
+      });
+    }
+
+    return components;
+  }
+
+  // if there is a custom component then pick it out
+  function componentsCustom(components) {
+    var customComponent = [];
+    for (var i=0; i<components.length; i++)
+      if (components[i].type === "custom") {
+        customComponent.push(components[i]);
+        break;
+      }
+    return customComponent;
+  }
+
+  // query all components for flex
+  function componentsFlex(components) {
+
+    // no components at all means no flex
+    if (components.length === 0)
+      return false;
+
+    // otherwise query components (assume true unless we see false)
+    var isMobile = isMobilePhone();
+    for (var i=0; i<components.length; i++)
+      if (components[i].flex && !components[i].flex(_options.fillPage))
+        return false;
+    return true;
+  }
+
+  // layout all components
+  function componentsLayout(components, title, container) {
+    var isMobile = isMobilePhone();
+    for (var i=0; i<components.length; i++) {
+      var element = components[i].find(container);
+      if (components[i].layout) {
+        // call layout (don't call other components if it returns false)
+        var result = components[i].layout(title, container, element, _options.fillPage);
+        if (result === false)
+          return;
+      }
+    }
+  }
+
+  // get a reference to the h3, discover it's inner html, and remove it
+  function extractTitle(container) {
+    var h3 = container.children('h3').first();
+    var title = '';
+    if (!container.hasClass('no-title'))
+      title = h3.html();
+    h3.remove();
+    return title;
+  }
+
+  // extract chart notes
+  function extractChartNotes(chartContent, chartNotes) {
+    // look for a terminating blockquote or image caption
+    var blockquote = chartContent.children('blockquote:last-child');
+    var caption = chartContent.children('div.image-container')
+                              .children('p.caption');
+    if (blockquote.length) {
+      chartNotes.html(blockquote.children('p:first-child').html());
+      blockquote.remove();
+      return true;
+    } else if (caption.length) {
+      chartNotes.html(caption.html());
+      caption.remove();
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  function findShinyOutput(chartContent) {
+    return chartContent.find('.shiny-text-output, .shiny-html-output');
+  }
+
+  // safely detect rendering on a mobile phone
+  function isMobilePhone() {
+    try
+    {
+      return ! window.matchMedia("only screen and (min-width: 768px)").matches;
+    }
+    catch(e) {
+      return false;
+    }
+  }
+
+  function isFillPage() {
+    return _options.fillPage;
+  }
+
+  // detect portrait mode
+  function isPortrait() {
+    return ($(window).width() < $(window).height());
+  }
+
+  // safely detect rendering on a tablet
+  function isTablet() {
+    try
+    {
+      return window.matchMedia("only screen and (min-width: 769px) and (max-width: 992px)").matches;
+    }
+    catch(e) {
+      return false;
+    }
+  }
+
+  // test whether this is a shiny doc
+  function isShinyDoc() {
+    return (typeof(window.Shiny) !== "undefined" && !!window.Shiny.outputBindings);
+  }
+
+  // set flex using vendor specific prefixes
+  function setFlex(el, flex) {
+    el.css('-webkit-box-flex', flex)
+      .css('-webkit-flex', flex)
+      .css('-ms-flex', flex)
+      .css('flex', flex);
+  }
+
+  // support bookmarking of pages
+  function handleLocationHash() {
+
+    // restore tab/page from bookmark
+    var hash = window.location.hash;
+    if (hash.length > 0)
+      $('ul.nav a[href="' + hash + '"]').tab('show');
+    FlexDashboardUtils.manageActiveNavbarMenu();
+
+    // navigate to a tab when the history changes
+    window.addEventListener("popstate", function(e) {
+      var hash = window.location.hash;
+      var activeTab = $('ul.nav a[href="' + hash + '"]');
+      if (activeTab.length) {
+        activeTab.tab('show');
+      } else {
+        $('ul.nav a:first').tab('show');
+      }
+      FlexDashboardUtils.manageActiveNavbarMenu();
+    });
+
+    // add a hash to the URL when the user clicks on a tab/page
+    $('.navbar-nav a[data-toggle="tab"]').on('click', function(e) {
+      var baseUrl = FlexDashboardUtils.urlWithoutHash(window.location.href);
+      var hash = FlexDashboardUtils.urlHash($(this).attr('href'));
+      var href = baseUrl + hash;
+      FlexDashboardUtils.setLocation(href);
+    });
+
+    // handle clicks of other links that should activate pages
+    var navPages = $('ul.navbar-nav li a[data-toggle=tab]');
+    navPages.each(function() {
+      var href =  $(this).attr('href');
+      var links = $('a[href="' + href + '"][data-toggle!=tab]');
+      links.each(function() {
+        $(this).on('click', function(e) {
+          window.FlexDashboardUtils.showPage(href);
+        });
+      });
+    });
+  }
+
+  // tweak Prism highlighting
+  function initPrismHighlighting() {
+
+    if (window.Prism) {
+      Prism.languages.insertBefore('r', 'comment', {
+        'heading': [
+          {
+            // title 1
+        	  // =======
+
+        	  // title 2
+        	  // -------
+        	  pattern: /\w+.*(?:\r?\n|\r)(?:====+|----+)/,
+            alias: 'operator'
+          },
+          {
+            // ### title 3
+            pattern: /(^\s*)###[^#].+/m,
+            lookbehind: true,
+            alias: 'operator'
+          }
+        ]
+      });
+
+      // prism highlight
+      Prism.highlightAll();
+    }
+  }
+
+
+  // get theme color
+  var themeColors = {
+    bootstrap: {
+      primary: "rgba(51, 122, 183, 0.4)",
+      info: "rgb(217, 237, 247)",
+      success: "rgb(223, 240, 216)",
+      warning: "rgb(252, 248, 227)",
+      danger: "rgb(242, 222, 222)"
+    },
+    cerulean: {
+      primary: "rgb(47, 164, 231)",
+      info: "rgb(217, 237, 247)",
+      success: "rgb(223, 240, 216)",
+      warning: "rgb(252, 248, 227)",
+      danger: "rgb(242, 222, 222)"
+    },
+    journal: {
+      primary: "rgba(235, 104, 100, 0.70)",
+      info: "rgb(217, 237, 247)",
+      success: "rgb(223, 240, 216)",
+      warning: "rgb(252, 248, 227)",
+      danger: "rgb(242, 222, 222)"
+    },
+    flatly: {
+      primary: "rgba(44, 62, 80, 0.70)",
+      info: "rgba(52, 152, 219, 0.70)",
+      success: "rgba(24, 188, 156, 0.70)",
+      warning: "rgba(243, 156, 18, 0.70)",
+      danger: "rgba(231, 76, 60, 0.70)"
+    },
+    readable: {
+      primary: "rgba(69, 130, 236, 0.4)",
+      info: "rgb(217, 237, 247)",
+      success: "rgb(223, 240, 216)",
+      warning: "rgb(252, 248, 227)",
+      danger: "rgb(242, 222, 222)"
+    },
+    spacelab: {
+      primary: "rgba(68, 110, 155, 0.25)",
+      info: "rgb(217, 237, 247)",
+      success: "rgb(223, 240, 216)",
+      warning: "rgb(252, 248, 227)",
+      danger: "rgb(242, 222, 222)"
+    },
+    united: {
+      primary: "rgba(221, 72, 20, 0.30)",
+      info: "rgb(217, 237, 247)",
+      success: "rgb(223, 240, 216)",
+      warning: "rgb(252, 248, 227)",
+      danger: "rgb(242, 222, 222)"
+    },
+    cosmo: {
+      primary: "rgba(39, 128, 227, 0.7)",
+      info: "rgba(153, 84, 187, 0.7)",
+      success: "rgba(63, 182, 24, 0.7)",
+      warning: "rgba(255, 117, 24, 0.7)",
+      danger: "rgba(255, 0, 57, 0.7)"
+    },
+    lumen: {
+      primary: "rgba(21, 140, 186, 0.70)",
+      info: "rgba(117, 202, 235, 0.90)",
+      success: "rgba(40, 182, 44, 0.70)",
+      warning: "rgba(255, 133, 27, 0.70)",
+      danger: "rgba(255, 65, 54, 0.70)"
+    },
+    paper: {
+      primary: "rgba(33, 150, 243, 0.35)",
+      info: "rgb(225, 190, 231)",
+      success: "rgb(223, 240, 216)",
+      warning: "rgb(255, 224, 178)",
+      danger: "rgb(249, 189, 187)"
+    },
+    sandstone: {
+      primary: "rgba(50, 93, 136, 0.3)",
+      info: "rgb(217, 237, 247)",
+      success: "rgb(223, 240, 216)",
+      warning: "rgb(252, 248, 227)",
+      danger: "rgb(242, 222, 222)"
+    },
+    simplex: {
+      primary: "rgba(217, 35, 15, 0.25)",
+      info: "rgb(217, 237, 247)",
+      success: "rgb(223, 240, 216)",
+      warning: "rgb(252, 248, 227)",
+      danger: "rgb(242, 222, 222)"
+    },
+    yeti: {
+      primary: "rgba(0, 140, 186, 0.298039)",
+      info: "rgb(217, 237, 247)",
+      success: "rgb(223, 240, 216)",
+      warning: "rgb(252, 248, 227)",
+      danger: "rgb(242, 222, 222)"
+    }
+  }
+  function themeColor(color) {
+    return themeColors[_options.theme][color];
+  }
+
+  FlexDashboard.prototype = {
+    constructor: FlexDashboard,
+    init: init,
+    isMobilePhone: isMobilePhone,
+    isFillPage: isFillPage,
+    themeColor: themeColor
+  };
+
+  return FlexDashboard;
+
+})();
+
+// utils
+window.FlexDashboardUtils = {
+  resizableImage: function(img) {
+    var src = img.attr('src');
+    var url = 'url("' + src + '")';
+    img.parent().css('background', url)
+                .css('background-size', 'contain')
+                .css('background-repeat', 'no-repeat')
+                .css('background-position', 'center')
+                .addClass('image-container');
+  },
+  setLocation: function(href) {
+    if (history && history.pushState) {
+      history.pushState(null, null, href);
+    } else {
+      window.location.replace(href);
+    }
+    setTimeout(function() {
+        window.scrollTo(0, 0);
+    }, 10);
+    this.manageActiveNavbarMenu();
+  },
+  showPage: function(href) {
+    $('ul.navbar-nav li a[href="' + href + '"]').tab('show');
+    var baseUrl = this.urlWithoutHash(window.location.href);
+    var loc = baseUrl + href;
+    this.setLocation(loc);
+  },
+  showLinkedValue: function(href) {
+    // check for a page link
+    if ($('ul.navbar-nav li a[data-toggle=tab][href="' + href + '"]').length > 0)
+      this.showPage(href);
+    else
+      window.open(href);
+  },
+  urlWithoutHash: function(url) {
+    var hashLoc = url.indexOf('#');
+    if (hashLoc != -1)
+      return url.substring(0, hashLoc);
+    else
+      return url;
+  },
+  urlHash: function(url) {
+    var hashLoc = url.indexOf('#');
+    if (hashLoc != -1)
+      return url.substring(hashLoc);
+    else
+      return "";
+  },
+  manageActiveNavbarMenu: function () {
+    // remove active from anyone currently active
+    $('.navbar ul.nav').find('li').removeClass('active');
+    // find the active tab
+    var activeTab = $('.dashboard-page-wrapper.tab-pane.active');
+    if (activeTab.length > 0) {
+      var tabId = activeTab.attr('id');
+      if (tabId)
+        $(".navbar ul.nav a[href='#" + tabId + "']").parents('li').addClass('active');
+    }
+  }
+};
+
+window.FlexDashboard = new FlexDashboard();
+
+// empty content
+window.FlexDashboardComponents.push({
+  find: function(container) {
+    if (container.find('p').length == 0)
+      return container;
+    else
+      return $();
+  }
+})
+
+// plot image
+window.FlexDashboardComponents.push({
+
+  find: function(container) {
+    return container.children('p')
+                    .children('img:only-child');
+  },
+
+  layout: function(title, container, element, fillPage) {
+    FlexDashboardUtils.resizableImage(element);
+  }
+});
+
+// plot image (figure style)
+window.FlexDashboardComponents.push({
+
+  find: function(container) {
+    return container.children('div.figure').children('img');
+  },
+
+  layout: function(title, container, element, fillPage) {
+    FlexDashboardUtils.resizableImage(element);
+  }
+});
+
+// htmlwidget
+window.FlexDashboardComponents.push({
+
+  init: function(dashboardContainer) {
+    // trigger "shown" after initial layout to force static htmlwidgets
+    // in runtime: shiny to be resized after the dom has been transformed
+    dashboardContainer.on('flexdashboard:layoutcomplete', function(event) {
+      setTimeout(function() {
+        dashboardContainer.trigger('shown');
+      }, 200);
+    });
+  },
+
+  find: function(container) {
+    return container.children('div[id^="htmlwidget-"],div.html-widget');
+  }
+});
+
+// gauge
+window.FlexDashboardComponents.push({
+
+  find: function(container) {
+    return container.children('div.html-widget.gauge');
+  },
+
+  flex: function(fillPage) {
+    return false;
+  },
+
+  layout: function(title, container, element, fillPage) {
+
+
+  }
+
+});
+
+// shiny output
+window.FlexDashboardComponents.push({
+  find: function(container) {
+    return container.children('div[class^="shiny-"]');
+  }
+});
+
+// datatables
+window.FlexDashboardComponents.push({
+  find: function(container) {
+    return container.find('.datatables');
+  },
+  flex: function(fillPage) {
+    return fillPage;
+  }
+});
+
+// bootstrap table
+window.FlexDashboardComponents.push({
+
+  find: function(container) {
+    var bsTable = container.find('table.table');
+    if (bsTable.length !== 0)
+      return bsTable;
+    else
+      return container.find('tr.header').parent('thead').parent('table');
+  },
+
+  flex: function(fillPage) {
+    return fillPage;
+  },
+
+  layout: function(title, container, element, fillPage) {
+
+    // alias variables
+    var bsTable = element;
+
+    // fixup xtable generated tables with a proper thead
+    var headerRow = bsTable.find('tbody > tr:first-child > th').parent();
+    if (headerRow.length > 0) {
+      var thead = $('<thead></thead>');
+      bsTable.prepend(thead);
+      headerRow.detach().appendTo(thead);
+    }
+
+    // improve appearance
+    container.addClass('bootstrap-table');
+
+    // for fill page provide scrolling w/ sticky headers
+    if (fillPage) {
+      // force scrollbar on overflow
+      container.addClass('flowing-content-shim');
+
+      // stable table headers when scrolling
+      bsTable.stickyTableHeaders({
+        scrollableArea: container
+      });
+    }
+  }
+});
+
+// embedded shiny app
+window.FlexDashboardComponents.push({
+
+  find: function(container) {
+    return container.find('iframe.shiny-frame');
+  },
+
+  flex: function(fillPage) {
+    return fillPage;
+  },
+
+  layout: function(title, container, element, fillPage) {
+    if (fillPage) {
+      element.attr('height', '100%');
+    } else {
+      // provide default height if necessary
+      var height = element.get(0).style.height;
+      if (!height)
+        height = element.attr('height');
+      if (!height)
+        element.attr('height', 500);
+    }
+  }
+});
+
+// shiny fillRow or fillCol
+window.FlexDashboardComponents.push({
+
+  find: function(container) {
+    return container.find('.flexfill-container');
+  },
+
+  flex: function(fillPage) {
+    return fillPage;
+  },
+
+  layout: function(title, container, element, fillPage) {
+    if (fillPage)
+      element.css('height', '100%');
+    else {
+      // provide default height if necessary
+      var height = element.get(0).style.height;
+      if (height === "100%" || height === "auto" || height === "initial" ||
+          height === "inherit" || !height) {
+        element.css('height', 500);
+      }
+    }
+  }
+});
+
+// valueBox
+window.FlexDashboardComponents.push({
+
+  type: "custom",
+
+  find: function(container) {
+    if (container.find('span.value-output, .shiny-valuebox-output').length)
+      return container;
+    else
+      return $();
+  },
+
+  flex: function(fillPage) {
+    return false;
+  },
+
+  layout: function(title, container, element, fillPage) {
+
+    // alias variables
+    var chartTitle = title;
+    var valueBox = element;
+
+    // add value-box class to container
+    container.addClass('value-box');
+
+    // value paragraph
+    var value = $('<p class="value"></p>');
+
+    // if we have shiny-text-output then just move it in
+    var valueOutputSpan = [];
+    var shinyOutput = valueBox.find('.shiny-valuebox-output').detach();
+    if (shinyOutput.length) {
+      valueBox.children().remove();
+      shinyOutput.html("&mdash;");
+      value.append(shinyOutput);
+    } else {
+      // extract the value (remove leading vector index)
+      var chartValue = valueBox.text().trim();
+      chartValue = chartValue.replace("[1] ", "");
+      valueOutputSpan = valueBox.find('span.value-output').detach();
+      valueBox.children().remove();
+      value.text(chartValue);
+    }
+
+    // caption
+    var caption = $('<p class="caption"></p>');
+    caption.html(chartTitle);
+
+    // build inner div for value box and add it
+    var inner = $('<div class="inner"></div>');
+    inner.append(value);
+    inner.append(caption);
+    valueBox.append(inner);
+
+    // add icon if specified
+    var icon = $('<div class="icon"><i></i></div>');
+    valueBox.append(icon);
+    function setIcon(chartIcon) {
+      var iconLib = "";
+      var components = chartIcon.split("-");
+      if (components.length > 1)
+        iconLib = components[0];
+      icon.children('i').attr('class', iconLib + ' ' + chartIcon);
+    }
+    var chartIcon = valueBox.attr('data-icon');
+    if (chartIcon)
+      setIcon(chartIcon);
+
+    // set color based on data-background if necessary
+    var dataBackground = valueBox.attr('data-background');
+    if (dataBackground)
+      valueBox.css('background-color', bgColor);
+    else {
+      // default to bg-primary if no other background is specified
+      if (!valueBox.hasClass('bg-primary') &&
+          !valueBox.hasClass('bg-info') &&
+          !valueBox.hasClass('bg-warning') &&
+          !valueBox.hasClass('bg-success') &&
+          !valueBox.hasClass('bg-danger')) {
+        valueBox.addClass('bg-primary');
+      }
+    }
+
+    // handle data attributes in valueOutputSpan
+    function handleValueOutput(valueOutput) {
+
+      // caption
+      var dataCaption = valueOutput.attr('data-caption');
+      if (dataCaption)
+        caption.html(dataCaption);
+
+      // icon
+      var dataIcon = valueOutput.attr('data-icon');
+      if (dataIcon)
+        setIcon(dataIcon);
+
+      // color
+      var dataColor = valueOutput.attr('data-color');
+      if (dataColor) {
+        if (dataColor.indexOf('bg-') === 0) {
+          valueBox.css('background-color', '');
+          if (!valueBox.hasClass(dataColor)) {
+             valueBox.removeClass('bg-primary bg-info bg-warning bg-danger bg-success');
+             valueBox.addClass(dataColor);
+          }
+        } else {
+          valueBox.removeClass('bg-primary bg-info bg-warning bg-danger bg-success');
+          valueBox.css('background-color', dataColor);
+        }
+      }
+
+      // url
+      var dataHref = valueOutput.attr('data-href');
+      if (dataHref) {
+        valueBox.addClass('linked-value');
+        valueBox.off('click.value-box');
+        valueBox.on('click.value-box', function(e) {
+          window.FlexDashboardUtils.showLinkedValue(dataHref);
+        });
+      }
+    }
+
+    // check for a valueOutputSpan
+    if (valueOutputSpan.length > 0) {
+      handleValueOutput(valueOutputSpan);
+    }
+
+    // if we have a shinyOutput then bind a listener to handle
+    // new valueOutputSpan values
+    shinyOutput.on('shiny:value',
+      function(event) {
+        var element = $(event.target);
+        setTimeout(function() {
+          var valueOutputSpan = element.find('span.value-output');
+          if (valueOutputSpan.length > 0)
+            handleValueOutput(valueOutputSpan);
+        }, 10);
+      }
+    );
+  }
+});
+
+
+</script>
+
+<div id="dashboard-container">
+
+<div id="executive-summary.-problem-definition-highlights-project-plan" class="section level3" data-commentary-width="300">
+<h3><strong>Executive Summary</strong>. Problem definition, highlights, project plan</h3>
+<div>
+<p><strong>30 second pitch</strong></p>
+<ul>
+<li>Implement an Apache Spark Core application which aggregates the customer and sales data sets in HDFS</li>
+<li>Report total sales revenue in each state for the year, month, day and hour granularity</li>
+</ul>
+<p><strong>highlights</strong></p>
+<ul>
+<li>Data is stored in text format</li>
+<li>Design considerations for both finite and a large number of customers</li>
+<li>Uses Apache Spark’s Python APIs for RDD</li>
+<li>Performance may be affected if the data is skewed for example if a handful of customers are responsible for the majority of sale. A python script has been provided to check the skewness of input data</li>
+<li>Data pipeline executes inside the Docker containers, on a development machine. Executing a single <code>make</code> command will build the Docker containers for Apache Spark and Apache Hadoop, initialize the environment, verify input data, generate output report, stop and remove the containers</li>
+<li>Complete source code, runnable docker containers and documentation, including the source code of this presentation is available in a public repository on <a href="https://github.com/askrht/spark-demo.git">Github</a></li>
+<li>This is a <span style="background-color:yellow;">proof of concept only</span> and it is not production ready, yet. The project plan below provides an estimate of how long it might take to get it ready for production</li>
+</ul>
+<p><strong>project plan</strong></p>
+<div style="display: flex; flex-direction: row; width:100%;>
+<div class="knitr-options" data-fig-width="576" data-fig-height="460"></div>
+<p><div id="htmlwidget-fda2d974c2131350e804" style="width:576px;height:460.8px;" class="DiagrammeR html-widget"></div>
+<script type="application/json" data-for="htmlwidget-fda2d974c2131350e804">{"x":{"diagram":"\ngantt\ndateFormat  YYYY-MM-DD\n\ntitle timeline\nsection compliance\napprovals : active, compliance_1, 2019-08-05, 10d\n\nsection development\ndevelop poc             : develop_1, after compliance_1, 10d\nmain development        : develop_2, after develop_1, 10d\n\nsection test\nsystem                  : test_1, after develop_2, 10d\nperformance             : test_2, after develop_2, 10d\n\nsection deploy\nrelease and deploy      : deploy_1, after test_1,  5d\n\n"},"evals":[],"jsHooks":[]}</script> Timeline may be pulled in by paralleling some tasks. Security, compliance and scope could affect the plan</p>
+</div>
+<hr />
+<p><strong>compliance checklist</strong></p>
+<ol style="list-style-type: decimal">
+<li><input type="checkbox" unchecked enabled> there may be customer identifiable information in the input data</input></li>
+<li><input type="checkbox" checked enabled> there is no customer identifiable information in the output data</input></li>
+<li><input type="checkbox" unchecked enabled> security</input></li>
+<li><input type="checkbox" unchecked enabled> GDPR compliant</input></li>
+<li><input type="checkbox" unchecked enabled> architectural approval</input></li>
+</ol>
+<p>Figure below shows the topology of how the data pipeline executes on a single node development machine</p>
+<div style="display:flex; flex-direction:row; width:80%; justify-content:center"">
+<div class="knitr-options" data-fig-width="288" data-fig-height="288"></div>
+<div id="htmlwidget-78644dcbdd222c1f751f" style="width:288px;height:288px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-78644dcbdd222c1f751f">{"x":{"diagram":"\n digraph topology {\n  graph [bgcolor=\"#1C1F2B00\",\n         overlap=true,\n         center=true,\n         fontname=Helvetica,\n         rankdir=TB]\n  node [fontname=Helvetica,\n        fontsize=22,\n        fillcolor=\"#85859B\",\n        style=filled,\n        fontcolor=\"#FBFBFB\",\n        penwidth=1.5,\n        shape=box,\n        color=\"#CCCCFF\"]\n  edge [color=\"#FF99FF\",\n        fontcolor=\"#FBFBFB\",\n        fontname=Helvetica,\n        penwidth=1]\n  \"make\" [color=green];\n  \"make\" -> \"Docker\";\n  subgraph clusterDocker {\n     style=filled; fillcolor=\"#CCCCFF\"; fontcolor=\"#FBFBFB\"; color=\"#CCCCFF\"; fontsize=18;\n     \"Hadoop\";\n     \"Spark\";\n  }\n  \"Docker\" -> \"Spark\";\n  \"Docker\" -> \"Hadoop\";\n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+</div>
+<div class="knitr-options" data-fig-width="576" data-fig-height="460">
+
+</div>
+</div>
+<div id="data-processing-pipeline.-a-simplified-view-of-transformations-applied-to-input-data-by-the-script-sales_by_states.py" class="section level3" data-commentary-width="500">
+<h3><strong>Data processing pipeline</strong>. A simplified view of transformations applied to input data by the script <code>sales_by_states.py</code></h3>
+<div class="knitr-options" data-fig-width="576" data-fig-height="460">
+
+</div>
+<div id="htmlwidget-b1d1ba42de399db7828f" style="width:576px;height:460.8px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-b1d1ba42de399db7828f">{"x":{"diagram":"\ndigraph \"data pipeline\" {\n  graph [bgcolor=\"#1C1F2B00\",\n         overlap=true,\n         center=true,\n         fontname=Helvetica,\n         rankdir=TB]\n  node [fontname=Helvetica,\n        fontsize=18,\n        fillcolor=\"#85859B\",\n        style=filled,\n        fontcolor=\"#FBFBFB\",\n        penwidth=1.5,\n        color=\"#CCCCFF\"]\n  edge [color=\"#FF99FF\",\n        penwidth=1]\n  node [shape=box]\n  100[label=\"prepare data\", fillcolor=\"#CCCCFF\", fontcolor=\"#1C1F2B\", shape=\"component\"];\n  110[label=\"read customer *states* from HDFS\ninto an RDD, ignoring blank lines\"];\n  120[label=\"map customer id to state\"];\n  130[label=\"read customer *sales* from HDFS\ninto an RDD, ignoring blank lines\"];\n  140[label=\"map customer id to sales\"];\n  150[label=\"join sales RDD with states RDD\non customer id\"];\n  160[label=\"drop customer identifiable information\nalso drop customer id\"];\n  100->110->120->130->140->150->160;\n  200[label=\"aggregate data\", fillcolor=\"#CCCCFF\", fontcolor=\"#1C1F2B\", shape=\"component\"];\n  210[label=\"aggregate by hour\"];\n  220[label=\"aggregate by day\"];\n  230[label=\"aggregate by month\"];\n  240[label=\"aggregate by year\"];\n  250[label=\"aggregate by state\"];\n  260[label=\"union above aggregates\ninto a single RDD\"];\n  270[label=\"sort and format\"];\n  280[label=\"store in HDFS\", shape=\"cylinder\"];\n  200->210->220->230->240->250->260->270->280;\n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+</div>
+<div id="demo-walk-through-the-code-and-discuss-design-considerations" class="section level3" data-commentary-width="300">
+<h3><strong>Demo</strong>, walk through the code and discuss design considerations</h3>
+<p><strong>Prerequisite</strong></p>
+<ol style="list-style-type: decimal">
+<li>Tested on <code>Ubuntu 16.04</code></li>
+<li>Requires <code>docker 18.09.6</code> and <code>docker-compose 1.24.0</code> to be available and ready to use</li>
+<li>Requires <code>make</code></li>
+<li>Execute the commands in bash</li>
+<li>Assumes that input data is clean</li>
+</ol>
+<p>You may need to configure a proxy to pull the docker images. <strong>Do not run in production !!</strong></p>
+<p><strong>Start here</strong></p>
+<p>Data pipeline executes inside the docker containers, on a development machine. The entire pipeline is automated through a self documented makefile. Executing <code>make</code> command in the root of this repository will build the docker containers for Spark and Hadoop, start them, verify input data and generate the report</p>
+<p>Either execute <code>make</code> in the root of the repository or execute individual commands. Most commands are idempotent</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="fu">make</span> setup      # only needs to be executed once to build the docker images</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="fu">make</span> start</a>
+<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="fu">make</span> report</a></code></pre></div>
+<p>Explore other commands using <code>make help</code></p>
+<pre><code>$ make help
+clean-output                   Delete output data
+connect                        To enter the Spark container
+report                         Print the output report and save it to a file
+setup                          Build Docker containers
+start                          Starts Spark and Hadoop. Jupyter is at localhost:8888
+stop                           Stop and remove the containers
+verify                         Check if the input data is skewed</code></pre>
+<p>Output of <code>make report</code> is shown below. It is saved locally as well as in Hadoop</p>
+<pre><code>$ make report
+AK#2016#8#1#11#123458
+AK#2016#8#1##123458
+AK#2016#8###123458
+AK#2016####123458
+AK#####123458
+AL#2017#8#1#10#123457
+AL#2017#8#1##123457
+AL#2017#8###123457
+AL#2017####123457
+AL#2016#8#1#12#123459
+AL#2016#8#1##123459
+AL#2016#8###123459
+AL#2016####123459
+AL#####246916
+CA#2016#2#1#9#246912
+CA#2016#2#1##246912
+CA#2016#2###246912
+CA#2016####246912
+CA#####246912
+OR#2016#2#1#9#123456
+OR#2016#2#1##123456
+OR#2016#2###123456
+OR#2016####123456
+OR#####123456
+The report has been saved to hdfs://hadoop:9000/output and locally at dataout/sales_by-state.txt</code></pre>
+<p><strong>When finished</strong></p>
+<p>Execute <code>make stop</code> on your host machine. This stops and removes the containers</p>
+<hr />
+<p><strong>Areas of improvement</strong></p>
+<ol style="list-style-type: decimal">
+<li>HDFS should preferably be on a separate machine or a cluster. Same for Apache Spark</li>
+<li>Better management of data at rest</li>
+<li>Auto generate test data of adequate size and auto load it in hadoop</li>
+<li>Add unit, functional and integration tests</li>
+<li>Add performance tests and harvest performance metrics for Apache Spark</li>
+</ol>
+</div>
+<div id="is-my-data-skewed" class="section level3" data-commentary-width="300">
+<h3><strong>Is my data skewed?</strong></h3>
+<p>Run <code>check_input.py</code> from the host machine</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb4-1" data-line-number="1">$ <span class="bu">time</span> make verify </a>
+<a class="sourceLine" id="cb4-2" data-line-number="2"><span class="ex">customers-by-state</span> (count: 4, mean: 1.25, stdev: 0.4330127018922193, max: 2.0, min: 1.0)</a>
+<a class="sourceLine" id="cb4-3" data-line-number="3"><span class="kw">(</span><span class="st">&#39;CA&#39;</span>, <span class="ex">2</span><span class="kw">)</span></a>
+<a class="sourceLine" id="cb4-4" data-line-number="4"><span class="kw">(</span><span class="st">&#39;AK&#39;</span>, <span class="ex">1</span><span class="kw">)</span></a>
+<a class="sourceLine" id="cb4-5" data-line-number="5"><span class="kw">(</span><span class="st">&#39;AL&#39;</span>, <span class="ex">1</span><span class="kw">)</span></a>
+<a class="sourceLine" id="cb4-6" data-line-number="6"><span class="kw">(</span><span class="st">&#39;OR&#39;</span>, <span class="ex">1</span><span class="kw">)</span></a>
+<a class="sourceLine" id="cb4-7" data-line-number="7"><span class="ex">customers-by-transactions</span> (count: 5, mean: 1.2, stdev: 0.4, max: 2.0, min: 1.0)</a>
+<a class="sourceLine" id="cb4-8" data-line-number="8"><span class="kw">(</span><span class="st">&#39;123&#39;</span>, <span class="ex">1</span><span class="kw">)</span></a>
+<a class="sourceLine" id="cb4-9" data-line-number="9"><span class="kw">(</span><span class="st">&#39;789&#39;</span>, <span class="ex">2</span><span class="kw">)</span></a>
+<a class="sourceLine" id="cb4-10" data-line-number="10"><span class="kw">(</span><span class="st">&#39;456&#39;</span>, <span class="ex">1</span><span class="kw">)</span></a>
+<a class="sourceLine" id="cb4-11" data-line-number="11"><span class="kw">(</span><span class="st">&#39;124&#39;</span>, <span class="ex">1</span><span class="kw">)</span></a>
+<a class="sourceLine" id="cb4-12" data-line-number="12"><span class="kw">(</span><span class="st">&#39;101112&#39;</span>, <span class="ex">1</span><span class="kw">)</span></a>
+<a class="sourceLine" id="cb4-13" data-line-number="13"></a>
+<a class="sourceLine" id="cb4-14" data-line-number="14"><span class="ex">real</span>  0m8.836s</a>
+<a class="sourceLine" id="cb4-15" data-line-number="15"><span class="ex">user</span>  0m0.041s</a>
+<a class="sourceLine" id="cb4-16" data-line-number="16"><span class="ex">sys</span>   0m0.025s</a></code></pre></div>
+<p>Now run the same script directly inside the container</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb5-1" data-line-number="1">$ <span class="fu">make</span> connect</a>
+<a class="sourceLine" id="cb5-2" data-line-number="2"><span class="ex">jovyan@jupyter</span>:~/work$ time spark-submit check_input.py <span class="op">2&gt;</span>/dev/null</a>
+<a class="sourceLine" id="cb5-3" data-line-number="3"><span class="ex">customers-by-state</span> (count: 4, mean: 1.25, stdev: 0.4330127018922193, max: 2.0, min: 1.0)</a>
+<a class="sourceLine" id="cb5-4" data-line-number="4"><span class="kw">(</span><span class="st">&#39;CA&#39;</span>, <span class="ex">2</span><span class="kw">)</span></a>
+<a class="sourceLine" id="cb5-5" data-line-number="5"><span class="kw">(</span><span class="st">&#39;AK&#39;</span>, <span class="ex">1</span><span class="kw">)</span></a>
+<a class="sourceLine" id="cb5-6" data-line-number="6"><span class="kw">(</span><span class="st">&#39;AL&#39;</span>, <span class="ex">1</span><span class="kw">)</span></a>
+<a class="sourceLine" id="cb5-7" data-line-number="7"><span class="kw">(</span><span class="st">&#39;OR&#39;</span>, <span class="ex">1</span><span class="kw">)</span></a>
+<a class="sourceLine" id="cb5-8" data-line-number="8"><span class="ex">customers-by-transactions</span> (count: 5, mean: 1.2, stdev: 0.4, max: 2.0, min: 1.0)</a>
+<a class="sourceLine" id="cb5-9" data-line-number="9"><span class="kw">(</span><span class="st">&#39;123&#39;</span>, <span class="ex">1</span><span class="kw">)</span></a>
+<a class="sourceLine" id="cb5-10" data-line-number="10"><span class="kw">(</span><span class="st">&#39;789&#39;</span>, <span class="ex">2</span><span class="kw">)</span></a>
+<a class="sourceLine" id="cb5-11" data-line-number="11"><span class="kw">(</span><span class="st">&#39;456&#39;</span>, <span class="ex">1</span><span class="kw">)</span></a>
+<a class="sourceLine" id="cb5-12" data-line-number="12"><span class="kw">(</span><span class="st">&#39;124&#39;</span>, <span class="ex">1</span><span class="kw">)</span></a>
+<a class="sourceLine" id="cb5-13" data-line-number="13"><span class="kw">(</span><span class="st">&#39;101112&#39;</span>, <span class="ex">1</span><span class="kw">)</span></a>
+<a class="sourceLine" id="cb5-14" data-line-number="14"></a>
+<a class="sourceLine" id="cb5-15" data-line-number="15"><span class="ex">real</span>  0m8.280s</a>
+<a class="sourceLine" id="cb5-16" data-line-number="16"><span class="ex">user</span>  0m14.407s</a>
+<a class="sourceLine" id="cb5-17" data-line-number="17"><span class="ex">sys</span>   0m1.373s</a></code></pre></div>
+<hr />
+<ol style="list-style-type: decimal">
+<li>If the data is skewed, it may not be partitioned properly and could affect performance</li>
+<li>Quantiles could provide a more effective measure of skewness</li>
+<li>Notice the difference between <code>real</code>, <code>user</code> and <code>sys</code> times</li>
+<li>Notice that the <code>user</code> time is more than <code>real</code> time inside the container</li>
+</ol>
+</div>
+<div id="what-does-the-output-data-look-like" class="section level3" data-commentary-width="350">
+<h3><strong>What does the output data look like?</strong></h3>
+<div class="knitr-options" data-fig-width="576" data-fig-height="460">
+
+</div>
+<div id="htmlwidget-33367c79364c60362c30" style="width:576px;height:460.8px;" class="dygraphs html-widget"></div>
+<script type="application/json" data-for="htmlwidget-33367c79364c60362c30">{"x":{"attrs":{"title":"Sales by States","labels":["quarter","AK","AL","CA","OR"],"retainDateWindow":false,"axes":{"x":{"pixelsPerLabel":60,"drawAxis":true},"y":{"drawAxis":true}},"legend":"auto","labelsDivWidth":400,"labelsShowZeroValues":true,"labelsSeparateLines":false,"hideOverlayOnMouseOut":true,"stackedGraph":true,"fillGraph":false,"fillAlpha":0.15,"stepPlot":false,"drawPoints":false,"pointSize":1,"drawGapEdgePoints":false,"connectSeparatedPoints":false,"strokeWidth":1,"strokeBorderColor":"white","colorValue":0.5,"colorSaturation":1,"includeZero":false,"drawAxesAtZero":false,"logscale":false,"axisTickSize":3,"axisLineColor":"black","axisLineWidth":0.3,"axisLabelColor":"black","axisLabelFontSize":14,"axisLabelWidth":60,"drawGrid":true,"gridLineWidth":0.3,"rightGap":5,"digitsAfterDecimal":2,"labelsKMB":false,"labelsKMG2":false,"labelsUTC":false,"maxNumberWidth":6,"animatedZooms":false,"mobileDisableYTouch":true,"disableZoom":false,"showRangeSelector":true,"dateWindow":["2016-10-30T00:00:00.000Z","2017-05-01T00:00:00.000Z"],"rangeSelectorHeight":40,"rangeSelectorPlotFillColor":" #A7B1C4","rangeSelectorPlotStrokeColor":"#808FAB","interactionModel":"Dygraph.Interaction.defaultModel"},"scale":"quarterly","group":"state","annotations":[],"shadings":[],"events":[],"format":"date","data":[["2016-02-01T15:00:00.000Z","2016-05-27T07:00:00.000Z","2016-08-01T16:00:00.000Z","2016-08-01T17:00:00.000Z","2016-09-20T01:00:00.000Z","2017-01-13T20:00:00.000Z","2017-05-09T13:00:00.000Z","2017-08-01T15:00:00.000Z"],[null,123458,123458,null,123458,123458,123458,null],[null,246916,null,123459,246916,246916,246916,123457],[246912,256912,null,null,247912,248912,245912,null],[123456,123456,null,null,123456,123456,123456,null]],"fixedtz":false,"tzone":""},"evals":["attrs.interactionModel"],"jsHooks":[]}</script>
+<hr />
+<div class="knitr-options" data-fig-width="576" data-fig-height="460">
+
+</div>
+<div id="htmlwidget-5f3c054dd2db44978331" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-5f3c054dd2db44978331">{"x":{"filter":"none","extensions":["Buttons","ColReorder","KeyTable"],"fillContainer":true,"data":[["AK","AK","AK","AK","AK","AL","AL","AL","AL","AL","AL","CA","CA","CA","CA","CA","OR","OR","OR","OR","OR"],["2017-05-09T08:00:00Z","2017-01-13T14:00:00Z","2016-09-19T20:00:00Z","2016-08-01T11:00:00Z","2016-05-27T02:00:00Z","2017-08-01T10:00:00Z","2017-05-09T08:00:00Z","2017-01-13T14:00:00Z","2016-09-19T20:00:00Z","2016-08-01T12:00:00Z","2016-05-27T02:00:00Z","2017-05-09T08:00:00Z","2017-01-13T14:00:00Z","2016-09-19T20:00:00Z","2016-05-27T02:00:00Z","2016-02-01T09:00:00Z","2017-05-09T08:00:00Z","2017-01-13T14:00:00Z","2016-09-19T20:00:00Z","2016-05-27T02:00:00Z","2016-02-01T09:00:00Z"],[123458,123458,123458,123458,123458,123457,246916,246916,246916,123459,246916,245912,248912,247912,256912,246912,123456,123456,123456,123456,123456]],"container":"<table class=\"display fill-container\">\n  <thead>\n    <tr>\n      <th>state<\/th>\n      <th>date<\/th>\n      <th>sales<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"Bfrtip","rownames":false,"buttons":["copy","csv","excel","pdf","print"],"pageLength":10,"lengthChange":true,"columnDefs":[{"className":"dt-right","targets":2}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+</div>
+<div id="check-spark-performance-metrics-using-sysstat" class="section level3" data-commentary-width="300">
+<h3>Check Spark performance metrics using <code>sysstat</code></h3>
+<div class="knitr-options" data-fig-width="576" data-fig-height="460">
+
+</div>
+<div id="htmlwidget-0e822711c8fb96c77b40" style="width:576px;height:460.8px;" class="dygraphs html-widget"></div>
+<script type="application/json" data-for="htmlwidget-0e822711c8fb96c77b40">{"x":{"attrs":{"title":"Spark sysstat metrics","labels":["second","cpu","disk","runq"],"legend":"auto","retainDateWindow":false,"axes":{"x":{"pixelsPerLabel":60}},"showRangeSelector":true,"rangeSelectorHeight":40,"rangeSelectorPlotFillColor":" #A7B1C4","rangeSelectorPlotStrokeColor":"#808FAB","interactionModel":"Dygraph.Interaction.defaultModel"},"scale":"seconds","group":"sar","annotations":[],"shadings":[],"events":[],"format":"date","data":[["2019-07-15T02:37:37.000Z","2019-07-15T02:37:38.000Z","2019-07-15T02:37:39.000Z","2019-07-15T02:37:40.000Z","2019-07-15T02:37:41.000Z","2019-07-15T02:37:42.000Z","2019-07-15T02:37:43.000Z","2019-07-15T02:37:44.000Z","2019-07-15T02:37:45.000Z","2019-07-15T02:37:46.000Z","2019-07-15T02:37:47.000Z","2019-07-15T02:37:48.000Z","2019-07-15T02:37:49.000Z","2019-07-15T02:37:50.000Z","2019-07-15T02:37:51.000Z","2019-07-15T02:37:52.000Z","2019-07-15T02:37:53.000Z","2019-07-15T02:37:54.000Z","2019-07-15T02:37:55.000Z","2019-07-15T02:37:56.000Z","2019-07-15T02:37:57.000Z","2019-07-15T02:37:58.000Z","2019-07-15T02:37:59.000Z","2019-07-15T02:38:00.000Z","2019-07-15T02:38:01.000Z","2019-07-15T02:38:02.000Z","2019-07-15T02:38:03.000Z","2019-07-15T02:38:04.000Z","2019-07-15T02:38:05.000Z","2019-07-15T02:38:06.000Z","2019-07-15T02:38:07.000Z","2019-07-15T02:38:08.000Z","2019-07-15T02:38:09.000Z","2019-07-15T02:38:10.000Z","2019-07-15T02:38:11.000Z","2019-07-15T02:38:12.000Z","2019-07-15T02:38:13.000Z","2019-07-15T02:38:14.000Z","2019-07-15T02:38:15.000Z","2019-07-15T02:38:16.000Z","2019-07-15T02:38:17.000Z","2019-07-15T02:38:18.000Z","2019-07-15T02:38:19.000Z","2019-07-15T02:38:20.000Z","2019-07-15T02:38:21.000Z","2019-07-15T02:38:22.000Z","2019-07-15T02:38:23.000Z","2019-07-15T02:38:24.000Z","2019-07-15T02:38:25.000Z","2019-07-15T02:38:26.000Z","2019-07-15T02:38:27.000Z","2019-07-15T02:38:28.000Z","2019-07-15T02:38:29.000Z","2019-07-15T02:38:30.000Z","2019-07-15T02:38:31.000Z","2019-07-15T02:38:32.000Z","2019-07-15T02:38:33.000Z","2019-07-15T02:38:35.000Z","2019-07-15T02:38:36.000Z","2019-07-15T02:38:37.000Z","2019-07-15T02:38:38.000Z","2019-07-15T02:38:39.000Z","2019-07-15T02:38:40.000Z","2019-07-15T02:38:41.000Z","2019-07-15T02:38:42.000Z","2019-07-15T02:38:43.000Z","2019-07-15T02:38:44.000Z","2019-07-15T02:38:45.000Z","2019-07-15T02:38:46.000Z","2019-07-15T02:38:47.000Z","2019-07-15T02:38:48.000Z","2019-07-15T02:38:49.000Z","2019-07-15T02:38:50.000Z","2019-07-15T02:38:51.000Z","2019-07-15T02:38:52.000Z","2019-07-15T02:38:53.000Z","2019-07-15T02:38:54.000Z","2019-07-15T02:38:55.000Z","2019-07-15T02:38:56.000Z","2019-07-15T02:38:57.000Z","2019-07-15T02:38:58.000Z","2019-07-15T02:38:59.000Z","2019-07-15T02:39:00.000Z","2019-07-15T02:39:01.000Z","2019-07-15T02:39:02.000Z","2019-07-15T02:39:03.000Z","2019-07-15T02:39:04.000Z","2019-07-15T02:39:05.000Z","2019-07-15T02:39:06.000Z","2019-07-15T02:39:07.000Z","2019-07-15T02:39:08.000Z","2019-07-15T02:39:09.000Z","2019-07-15T02:39:10.000Z","2019-07-15T02:39:11.000Z","2019-07-15T02:39:12.000Z","2019-07-15T02:39:13.000Z","2019-07-15T02:39:14.000Z","2019-07-15T02:39:15.000Z","2019-07-15T02:39:16.000Z","2019-07-15T02:39:17.000Z","2019-07-15T02:39:18.000Z","2019-07-15T02:39:19.000Z","2019-07-15T02:39:20.000Z","2019-07-15T02:39:21.000Z","2019-07-15T02:39:22.000Z","2019-07-15T02:39:23.000Z","2019-07-15T02:39:24.000Z","2019-07-15T02:39:25.000Z","2019-07-15T02:39:26.000Z","2019-07-15T02:39:27.000Z","2019-07-15T02:39:28.000Z","2019-07-15T02:39:29.000Z","2019-07-15T02:39:30.000Z","2019-07-15T02:39:31.000Z","2019-07-15T02:39:32.000Z","2019-07-15T02:39:33.000Z","2019-07-15T02:39:34.000Z","2019-07-15T02:39:35.000Z","2019-07-15T02:39:36.000Z","2019-07-15T02:39:37.000Z","2019-07-15T02:39:38.000Z","2019-07-15T02:39:39.000Z","2019-07-15T02:39:40.000Z","2019-07-15T02:39:42.000Z","2019-07-15T02:39:43.000Z","2019-07-15T02:39:44.000Z","2019-07-15T02:39:45.000Z","2019-07-15T02:39:46.000Z","2019-07-15T02:39:47.000Z","2019-07-15T02:39:48.000Z","2019-07-15T02:39:49.000Z","2019-07-15T02:39:50.000Z","2019-07-15T02:39:51.000Z","2019-07-15T02:39:52.000Z","2019-07-15T02:39:53.000Z","2019-07-15T02:39:54.000Z","2019-07-15T02:39:55.000Z","2019-07-15T02:39:56.000Z","2019-07-15T02:39:57.000Z","2019-07-15T02:39:58.000Z","2019-07-15T02:39:59.000Z","2019-07-15T02:40:00.000Z","2019-07-15T02:40:01.000Z","2019-07-15T02:40:02.000Z","2019-07-15T02:40:03.000Z","2019-07-15T02:40:04.000Z","2019-07-15T02:40:05.000Z","2019-07-15T02:40:06.000Z","2019-07-15T02:40:07.000Z","2019-07-15T02:40:08.000Z","2019-07-15T02:40:09.000Z","2019-07-15T02:40:10.000Z","2019-07-15T02:40:11.000Z","2019-07-15T02:40:12.000Z","2019-07-15T02:40:13.000Z","2019-07-15T02:40:14.000Z","2019-07-15T02:40:15.000Z","2019-07-15T02:40:16.000Z","2019-07-15T02:40:17.000Z","2019-07-15T02:40:18.000Z","2019-07-15T02:40:19.000Z","2019-07-15T02:40:20.000Z","2019-07-15T02:40:21.000Z","2019-07-15T02:40:22.000Z","2019-07-15T02:40:23.000Z","2019-07-15T02:40:24.000Z","2019-07-15T02:40:25.000Z","2019-07-15T02:40:26.000Z","2019-07-15T02:40:27.000Z","2019-07-15T02:40:28.000Z","2019-07-15T02:40:29.000Z","2019-07-15T02:40:30.000Z","2019-07-15T02:40:31.000Z","2019-07-15T02:40:32.000Z","2019-07-15T02:40:33.000Z","2019-07-15T02:40:34.000Z","2019-07-15T02:40:35.000Z","2019-07-15T02:40:36.000Z","2019-07-15T02:40:37.000Z","2019-07-15T02:40:38.000Z","2019-07-15T02:40:39.000Z","2019-07-15T02:40:40.000Z","2019-07-15T02:40:41.000Z","2019-07-15T02:40:42.000Z","2019-07-15T02:40:43.000Z","2019-07-15T02:40:44.000Z","2019-07-15T02:40:45.000Z","2019-07-15T02:40:46.000Z","2019-07-15T02:40:47.000Z","2019-07-15T02:40:48.000Z","2019-07-15T02:40:49.000Z","2019-07-15T02:40:50.000Z","2019-07-15T02:40:51.000Z","2019-07-15T02:40:52.000Z","2019-07-15T02:40:54.000Z","2019-07-15T02:40:55.000Z","2019-07-15T02:40:56.000Z","2019-07-15T02:40:57.000Z","2019-07-15T02:40:58.000Z","2019-07-15T02:40:59.000Z","2019-07-15T02:41:00.000Z","2019-07-15T02:41:01.000Z","2019-07-15T02:41:02.000Z","2019-07-15T02:41:03.000Z","2019-07-15T02:41:04.000Z","2019-07-15T02:41:05.000Z","2019-07-15T02:41:06.000Z","2019-07-15T02:41:07.000Z","2019-07-15T02:41:08.000Z","2019-07-15T02:41:09.000Z","2019-07-15T02:41:10.000Z","2019-07-15T02:41:11.000Z","2019-07-15T02:41:12.000Z","2019-07-15T02:41:13.000Z","2019-07-15T02:41:14.000Z","2019-07-15T02:41:15.000Z","2019-07-15T02:41:16.000Z","2019-07-15T02:41:17.000Z","2019-07-15T02:41:18.000Z","2019-07-15T02:41:19.000Z","2019-07-15T02:41:20.000Z","2019-07-15T02:41:21.000Z","2019-07-15T02:41:22.000Z","2019-07-15T02:41:23.000Z","2019-07-15T02:41:24.000Z","2019-07-15T02:41:25.000Z","2019-07-15T02:41:26.000Z","2019-07-15T02:41:27.000Z","2019-07-15T02:41:28.000Z","2019-07-15T02:41:29.000Z","2019-07-15T02:41:30.000Z","2019-07-15T02:41:31.000Z","2019-07-15T02:41:32.000Z","2019-07-15T02:41:33.000Z","2019-07-15T02:41:34.000Z","2019-07-15T02:41:35.000Z","2019-07-15T02:41:36.000Z","2019-07-15T02:41:37.000Z","2019-07-15T02:41:38.000Z","2019-07-15T02:41:39.000Z","2019-07-15T02:41:40.000Z","2019-07-15T02:41:41.000Z","2019-07-15T02:41:42.000Z","2019-07-15T02:41:43.000Z","2019-07-15T02:41:44.000Z","2019-07-15T02:41:45.000Z","2019-07-15T02:41:46.000Z","2019-07-15T02:41:47.000Z","2019-07-15T02:41:48.000Z","2019-07-15T02:41:49.000Z","2019-07-15T02:41:50.000Z","2019-07-15T02:41:51.000Z","2019-07-15T02:41:52.000Z","2019-07-15T02:41:53.000Z","2019-07-15T02:41:54.000Z","2019-07-15T02:41:55.000Z","2019-07-15T02:41:56.000Z","2019-07-15T02:41:57.000Z","2019-07-15T02:41:58.000Z","2019-07-15T02:41:59.000Z","2019-07-15T02:42:00.000Z","2019-07-15T02:42:01.000Z","2019-07-15T02:42:02.000Z","2019-07-15T02:42:03.000Z","2019-07-15T02:42:04.000Z","2019-07-15T02:42:05.000Z","2019-07-15T02:42:07.000Z","2019-07-15T02:42:08.000Z","2019-07-15T02:42:09.000Z","2019-07-15T02:42:10.000Z","2019-07-15T02:42:11.000Z","2019-07-15T02:42:12.000Z","2019-07-15T02:42:13.000Z","2019-07-15T02:42:14.000Z","2019-07-15T02:42:15.000Z","2019-07-15T02:42:16.000Z","2019-07-15T02:42:17.000Z","2019-07-15T02:42:18.000Z","2019-07-15T02:42:19.000Z","2019-07-15T02:42:20.000Z","2019-07-15T02:42:21.000Z","2019-07-15T02:42:22.000Z","2019-07-15T02:42:23.000Z","2019-07-15T02:42:24.000Z","2019-07-15T02:42:25.000Z","2019-07-15T02:42:26.000Z","2019-07-15T02:42:27.000Z","2019-07-15T02:42:28.000Z","2019-07-15T02:42:29.000Z","2019-07-15T02:42:30.000Z","2019-07-15T02:42:31.000Z","2019-07-15T02:42:32.000Z","2019-07-15T02:42:33.000Z","2019-07-15T02:42:34.000Z","2019-07-15T02:42:35.000Z","2019-07-15T02:42:36.000Z","2019-07-15T02:42:37.000Z","2019-07-15T02:42:38.000Z","2019-07-15T02:42:39.000Z"],[5,10,10,4,6,9,6,11,4,7,10,7,5,5,8,5,6,12,5,7,6,9,9,19,19,39,63,21,6,6,6,8,8,6,11,6,5,18,41,46,53,54,80,73,58,50,43,67,71,60,35,49,50,19,23,22,14,16,9,8,12,6,9,6,14,8,7,6,8,37,61,30,8,10,8,6,7,5,7,6,9,19,45,62,54,82,68,56,82,74,61,76,64,56,66,55,24,17,41,17,12,9,11,9,11,12,11,6,7,15,12,7,10,12,7,6,7,7,8,10,8,9,8,11,7,12,10,10,6,6,6,4,5,6,6,10,7,8,6,8,7,8,7,15,30,55,42,6,5,8,6,9,6,6,9,5,13,48,58,67,75,92,79,56,60,48,72,69,45,58,45,33,11,8,13,9,8,8,7,8,26,12,6,6,7,9,8,13,6,7,7,9,9,7,5,8,6,7,6,18,16,7,13,12,13,18,32,11,6,8,7,34,66,29,7,6,9,9,6,7,7,6,6,20,50,66,51,76,80,62,57,44,57,74,47,49,48,19,17,6,5,5,6,6,6,7,18,9,12,14,12,19,11,13,10,46,16,10,12,14,15,12,15,13,11,14,18,13,26,22,22,16,11,10,20,9,14,22,18,13,10,17,24,10,19,8,12,8,9,10,8,8,12,10,12,8,10,12,10],[0,0,2,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,8,19,7,10,0,0,4,0,1,0,0,0,0,6,19,15,14,6,6,4,3,4,5,1,1,2,6,2,1,3,4,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,3,1,0,6,0,0,0,0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,1,0,0,0,0,0,0,0,0,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,5,0,0,0,0,0,0,0,0,0,0,0,0,3,0,4,0,0,0,0,4,2,1,0,0,5,0,0,0,0,0,4,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,6,0,1,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,2,3,0,5,0,0,0,0,0,0,0,0,1,0,0,0,2,0,2,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,4,0,0,0,2,0,0,0,0,0,2,0,0,0,0,1,0,0,0,0,0,4,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,1,1,0,0,2,0,0,0,2,0,0,0,0,0,0,1,1,1,0,1,0,0,0,0,0,0,0,0,2,1,3,1,2,2,1,1,5,4,6,4,3,0,2,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,3,3,0,0,0,0,0,0,1,1,0,0,1,2,1,2,4,3,2,6,5,1,12,2,3,1,6,4,1,1,0,1,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,6,7,0,0,0,0,0,0,0,0,0,0,1,1,3,2,3,8,2,3,3,3,4,0,1,0,7,0,1,0,0,0,1,0,1,6,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1,4,0,0,0,0,0,0,0,0,0,0,1,2,1,3,3,3,4,5,1,5,5,2,4,1,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,0,1,0,2,0,0,0,0,4,0,1,0,2,3,0,1,0,8,0,2,0,0,2,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0]]},"evals":["attrs.interactionModel"],"jsHooks":[]}</script>
+<hr />
+<p>This chart shows <code>sysstat</code> metrics for 4 executions of <code>sales_by_states.py</code> job. The metrics are reported by the quantile given in the table below</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">metric</th>
+<th align="left">unit</th>
+<th align="left">quantile</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">cpu</td>
+<td align="left">%busy</td>
+<td align="left">75%</td>
+</tr>
+<tr class="even">
+<td align="left">disk</td>
+<td align="left">%util</td>
+<td align="left">99.5%</td>
+</tr>
+<tr class="odd">
+<td align="left">runq</td>
+<td align="left">unit</td>
+<td align="left">99%</td>
+</tr>
+</tbody>
+</table>
+<p>Folder <code>dataout</code> contains sysstat metrics for CPU, memory, network, disk and proc, after you run the <code>collect-sar</code> and <code>parse-sar</code> commands inside the <code>jupyter</code> container. <code>head -n2 dataout/*.dat</code></p>
+</div>
+<div id="how-can-we-improve-performance" class="section level3" data-commentary-width="300">
+<h3>How can we improve <strong>performance</strong>?</h3>
+<ul>
+<li>Consider Scala</li>
+<li>Consider Dataframes</li>
+<li>Consider Streaming</li>
+<li>Tune the Scheduler</li>
+<li>Consider Apache Parquet for data at rest</li>
+<li>Partitioning</li>
+<li>Read multiple files</li>
+<li>Data locality</li>
+<li>Collect statistics</li>
+<li>Improve serialization</li>
+<li>Check memory pressure and garbage collection</li>
+<li>Increase parallelism</li>
+<li>Filtering</li>
+<li>Caching</li>
+<li>Joins</li>
+<li>Aggregation</li>
+<li>Broadcast variables</li>
+</ul>
+</div>
+
+</div>
+
+<script>
+
+$(document).ready(function () {
+
+  // add bootstrap table styles to pandoc tables
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+
+  // initialize mathjax
+
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function () {
+  FlexDashboard.init({
+    theme: "flatly",
+    fillPage: true,
+    orientation: "rows",
+    storyboard: true,
+    defaultFigWidth: 576,
+    defaultFigHeight: 460,
+    defaultFigWidthMobile: 360,
+    defaultFigHeightMobile: 460
+  });
+});
+</script>
+
+</body>
+</html>

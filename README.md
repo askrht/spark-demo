@@ -1,4 +1,4 @@
-A mobile friendly presentation can be viewed by opening the file `spark-demo.html` in a browser. The html file has been generated from the Rmarkdown document `spark-demo.Rmd` present in the repository
+A mobile friendly presentation can be viewed [here](https://askrht.github.io/spark-demo) It has been generated from the Rmarkdown present inside `docs`
 
 **Prerequisite**
 
