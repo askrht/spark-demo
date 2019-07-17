@@ -44,7 +44,7 @@ knitr::opts_chunk$set(eval=TRUE, echo=FALSE, include=TRUE, results="asis", messa
 - Design considerations for both finite and a large number of customers
 - Uses Apache Spark's Python APIs for RDD
 - Performance may be affected if the data is skewed for example if a handful of customers are responsible for the majority of sale. A python script has been provided to check the skewness of input data
-- Data pipeline executes inside the Docker containers, on a development machine. Executing a single `make` command will build the Docker containers for Apache Spark and Apache Hadoop, initialize the environment, verify input data, generate output report, stop and remove the containers
+- Data pipeline executes inside the Docker containers, on a development machine. Executing a single `make` command will build the Docker containers for Apache Spark and Apache Hadoop, initialize the environment, verify input data and generate output report
 - Complete source code, runnable docker containers and documentation, including the source code of this presentation is available in a public repository on [Github](https://github.com/askrht/spark-demo.git)
 - This is a <span style="background-color:yellow;">proof of concept only</span> and it is not production ready, yet. The project plan below provides an estimate of how long it might take to get it ready for production
 
