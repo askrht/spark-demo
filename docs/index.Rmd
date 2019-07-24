@@ -28,6 +28,7 @@ library(DT)
 # install.packages(c("flexdashboard", "DiagrammeR", "htmltools", "ggplot2", "tidyverse", "lubridate","visNetwork", "gsheet", "tidyr", "scales", "dygraphs", "stringr", "DT"))
 htmltools::tagList(rmarkdown::html_dependency_font_awesome())
 knitr::opts_chunk$set(eval=TRUE, echo=FALSE, include=TRUE, results="asis", message=FALSE, warning=FALSE)
+dataout <- paste0(getwd(), '/../datain')
 ```
 
 ### **Executive Summary**. Problem definition, highlights, project plan {data-commentary-width=300}
@@ -359,7 +360,7 @@ rm(sales)
 # date time   CPU %user %nice %system %iowait %steal %idle
 # 2019-07-14 21:37:37   all 2.04 0.00 2.81 0.00 0.00 95.15
 cpu <-
-list.files('../dataout', 'jupyter_CPU\\.dat', full.names=T, recursive=T) %>%
+list.files(dataout, 'jupyter_CPU\\.dat', full.names=T, recursive=T) %>%
   tibble(File = .) %>% mutate(Data = lapply(File, read_table2, col_names=T)) %>% unnest(Data) %>% select(-File) %>%
   mutate(date = as.POSIXct(paste(.$date, .$time), format="%Y-%m-%d %H:%M:%S"), tz='UTC') %>%
   mutate(cpu = round(100 - `%idle`)) %>% select(date, cpu) %>% na.omit() %>%
@@ -368,7 +369,7 @@ list.files('../dataout', 'jupyter_CPU\\.dat', full.names=T, recursive=T) %>%
 # date time   DEV tps rkB/s wkB/s areq-sz aqu-sz await svctm %util
 # 2019-07-14 21:37:37   dev7-0 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00
 disk <-
-list.files('../dataout', 'jupyter_DEV\\.dat', full.names=T, recursive=T) %>%
+list.files(dataout, 'jupyter_DEV\\.dat', full.names=T, recursive=T) %>%
   tibble(File = .) %>% mutate(Data = lapply(File, read_table2, col_names=T)) %>% unnest(Data) %>% select(-File) %>%
   mutate(date = as.POSIXct(paste(.$date, .$time), format="%Y-%m-%d %H:%M:%S"), tz='UTC') %>%
   mutate(disk = round(`%util`)) %>% select(date, disk) %>% na.omit() %>%
@@ -377,7 +378,7 @@ list.files('../dataout', 'jupyter_DEV\\.dat', full.names=T, recursive=T) %>%
 # date time   runq-sz plist-sz ldavg-1 ldavg-5 ldavg-15 blocked
 # 2019-07-14 21:37:37   0 2051 0.74 0.74 0.90 0
 runq <-
-list.files('../dataout', 'runq-sz\\.dat', full.names=T, recursive=T) %>%
+list.files(dataout, 'runq-sz\\.dat', full.names=T, recursive=T) %>%
   tibble(File = .) %>% mutate(Data = lapply(File, read_table2, col_names=T)) %>% unnest(Data) %>% select(-File) %>%
   mutate(date = as.POSIXct(paste(.$date, .$time), format="%Y-%m-%d %H:%M:%S"), tz='UTC') %>%
   mutate(runq = round(`runq-sz`)) %>% select(date, runq) %>% na.omit() %>%
