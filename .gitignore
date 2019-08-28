@@ -2,3 +2,5 @@
 .RData
 .Rhistory
 /dataout
+node_modules/
+

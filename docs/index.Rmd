@@ -135,7 +135,7 @@ list.files('../datain', 'customers\\.dat', full.names=T, recursive=T) %>%
   group_by(state) %>% tally() %>% arrange(state)
 ```
 
-### **Data processing pipeline**. A simplified view of transformations applied to input data by the script `sales_by_states.py` {data-commentary-width=500} 
+### **Data processing pipeline**. A simplified view of transformations applied to input data by the script [`sales_by_states.py`](https://github.com/askrht/spark-demo/blob/master/sales_by_state.py) {data-commentary-width=500} 
 ```{r eval=TRUE, include=TRUE, echo=FALSE, results="asis", message=FALSE, warning=FALSE}
 
 grViz("
