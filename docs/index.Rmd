@@ -254,7 +254,7 @@ digraph 'data pipeline' {
 
 1. HDFS should preferably be on a separate machine or a cluster. Same for Apache Spark
 1. Better management of data at rest
-1. Auto generate test data of adequate size and auto load it in hadoop
+1. Auto generate test data of adequate size and auto load it in Hadoop
 1. Add unit, functional and integration tests
 1. Add performance tests and harvest performance metrics for Apache Spark
 
@@ -305,7 +305,7 @@ sys   0m1.373s
 
 ***
 
-1. If the data is skewed, it may not be partitioned properly and could affect performance
+1. If the data is skewed, it may not be partitioned properly and could create a hot spot
 1. Quantiles could provide a more effective measure of skewness
 1. Notice the difference between `real`, `user` and `sys` times
 1. Notice that the `user` time is more than `real` time inside the container
