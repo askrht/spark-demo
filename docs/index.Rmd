@@ -423,6 +423,7 @@ Folder `dataout` contains sysstat metrics for CPU, memory, network, disk and pro
 - Joins
 - Aggregation
 - Broadcast variables
+- Consider hardware acceleration for example, using FPGA to filter in the storage itself
 
 ### Detect and predict a performance problem in distributed systems
 
