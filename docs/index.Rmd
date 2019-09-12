@@ -430,6 +430,5 @@ Folder `dataout` contains sysstat metrics for CPU, memory, network, disk and pro
 - Sliding window counters of errors to discover unexpected events. Ref Sandhya Menon's [thesis](https://webcache.googleusercontent.com/search?q=cache:cfh6qXwoNCkJ:https://pdfs.semanticscholar.org/3564/174625ef21cb916e9d245d5fdcbd0178fc9a.pdf+&cd=2&hl=en&ct=clnk&gl=us&client=ubuntu), 2006.
 - Linear regression
 - Discrete and stochastic event simulation
-- Simple learning techniques such as Decision Trees or Naive Bayes
+- Simple learning techniques such as Decision Trees or ensembles as [demonstrated](https://github.com/EarlGlynn/kc-r-users-caret-2017) by Earl in 2017
 - More advanced machine learning if necessary
-- Kaggle competition
