@@ -192,18 +192,13 @@ digraph 'data pipeline' {
 
   Data pipeline executes inside the docker containers, on a development machine. The entire pipeline is automated through a self documented makefile. Executing `make` command in the root of this repository will build the docker containers for Spark and Hadoop, start them, verify input data and generate the report
 
-  Either execute `make` in the root of the repository or execute individual commands. Most commands are idempotent
-
-  ```sh
-  make setup      # only needs to be executed once to build the docker images
-  make start
-  make report
-  ```
+  Either execute `make` in the root of the repository or execute individual commands `make setup start verify report`. Most commands are idempotent
 
   Explore other commands using `make help`
 
   ```
   $ make help
+  all                            setup start verify report
   clean-output                   Delete output data
   connect                        To enter the Spark container
   report                         Print the output report and save it to a file
@@ -429,7 +424,8 @@ Folder `dataout` contains sysstat metrics for CPU, memory, network, disk and pro
 
 - Control charts for example, [qicharts](https://cran.r-project.org/web/packages/qicharts/vignettes/controlcharts.html)
 - Sliding window counters of errors to discover unexpected events. Ref Sandhya Menon's [thesis](https://webcache.googleusercontent.com/search?q=cache:cfh6qXwoNCkJ:https://pdfs.semanticscholar.org/3564/174625ef21cb916e9d245d5fdcbd0178fc9a.pdf+&cd=2&hl=en&ct=clnk&gl=us&client=ubuntu), 2006.
+- Use clustering to identify hidden connections and patterns
 - Linear regression
 - Discrete and stochastic event simulation
-- Simple learning techniques such as Decision Trees or ensembles as [demonstrated](https://github.com/EarlGlynn/kc-r-users-caret-2017) by Earl in 2017
-- More advanced machine learning if necessary
+- Simple learning techniques such as Decision Trees or ensembles as [demonstrated](https://github.com/EarlGlynn/kc-r-users-caret-2017) by Earl in 2017 or use more advanced machine learning if necessary
+- Our ability to predict is highly dependent on how we frame the problem

@@ -31,4 +31,4 @@ clean-output: ## Delete output data
 	-docker exec hadoop bash -c '/usr/local/hadoop/bin/hadoop fs -rm -r /dataout/output > /dev/null 2>&1'
 	# wait for hadoop to finish the job
 	sleep 10
-all: setup start verify report
+all: setup start verify report ## setup start verify report

@@ -14,18 +14,13 @@ A mobile friendly presentation can be viewed [here](https://askrht.github.io/spa
 
   Data pipeline executes inside the docker containers, on a development machine. The entire pipeline is automated through a self documented makefile. Executing `make` command in the root of this repository will build the docker containers for spark and hadoop, start them, verify input data and generate the report
 
-  Either execute `make` in the root of the repository or execute individual commands. Most commands are idempotent
+  Either execute `make` in the root of the repository or execute individual commands `make setup start verify report`. Most commands are idempotent
 
-  ```sh
-  make setup      # only needs to be executed once to build the docker images
-  make start
-  make report
-  ```
-
-  Explore other commands using `make help`
+   Explore other commands using `make help`
 
   ```
   $ make help
+  all                            setup start verify report
   clean-output                   Delete output data
   connect                        To enter the Spark container
   report                         Print the output report and save it to a file
