@@ -178,82 +178,11 @@ digraph 'data pipeline' {
 
 ### **Demo**, walk through the code and discuss design considerations {data-commentary-width=300} 
 
-**Prerequisite**
+```{r}
+htmltools::includeMarkdown('../README.md')
+```
 
-  1. Tested on `Ubuntu 16.04`
-  1. Requires `docker 18.09.6` and `docker-compose 1.24.0` to be available and ready to use
-  1. Requires `make`
-  1. Execute the commands in bash
-  1. Assumes that input data is clean
-
-  You may need to configure a proxy to pull the docker images. <strong>Do not run in production !!</strong>
-
-**Start here**
-
-  Data pipeline executes inside the docker containers, on a development machine. The entire pipeline is automated through a self documented makefile. Executing `make` command in the root of this repository will build the docker containers for Spark and Hadoop, start them, verify input data and generate the report
-
-  Either execute `make` in the root of the repository or execute individual commands `make setup start verify report`. Most commands are idempotent
-
-  Explore other commands using `make help`
-
-  ```
-  $ make help
-  all                            setup start verify report
-  clean-output                   Delete output data
-  connect                        To enter the Spark container
-  report                         Print the output report and save it to a file
-  setup                          Build Docker containers
-  start                          Starts Spark and Hadoop. Jupyter is at localhost:8888
-  stop                           Stop and remove the containers
-  verify                         Check if the input data is skewed
-  ```
-
-  Output of `make report` is shown below. It is saved locally as well as in Hadoop
-
-  ```
-  $ make report
-  AK#2016#8#1#11#123458
-  AK#2016#8#1##123458
-  AK#2016#8###123458
-  AK#2016####123458
-  AK#####123458
-  AL#2017#8#1#10#123457
-  AL#2017#8#1##123457
-  AL#2017#8###123457
-  AL#2017####123457
-  AL#2016#8#1#12#123459
-  AL#2016#8#1##123459
-  AL#2016#8###123459
-  AL#2016####123459
-  AL#####246916
-  CA#2016#2#1#9#246912
-  CA#2016#2#1##246912
-  CA#2016#2###246912
-  CA#2016####246912
-  CA#####246912
-  OR#2016#2#1#9#123456
-  OR#2016#2#1##123456
-  OR#2016#2###123456
-  OR#2016####123456
-  OR#####123456
-  The report has been saved to hdfs://hadoop:9000/output and locally at dataout/sales_by-state.txt
-  ```
-
-**When finished**
-
-  Execute `make stop` on your host machine. This stops and removes the containers
-
-***
-
-**Areas of improvement**
-
-1. HDFS should preferably be on a separate machine or a cluster. Same for Apache Spark
-1. Better management of data at rest
-1. Auto generate test data of adequate size and auto load it in Hadoop
-1. Add unit, functional and integration tests
-1. Add performance tests and harvest performance metrics for Apache Spark
-
-### **Is my data skewed?** {data-commentary-width=300} 
+### **Is my data skewed?** Identify and eliminate hot spots {data-commentary-width=300} 
 
 Run `check_input.py` from the host machine
 
@@ -305,7 +234,7 @@ sys   0m1.373s
 1. Notice the difference between `real`, `user` and `sys` times
 1. Notice that the `user` time is more than `real` time inside the container
 
-### **What does the output data look like?** {data-commentary-width=350} 
+### **What does the output data look like?** Plot the output and download summarized output data {data-commentary-width=350} 
 
 ```{r}
 format_date <- function(year, month, day, hour) {
@@ -349,7 +278,7 @@ rm(sales)
 
 
 
-### Check Spark performance metrics using `sysstat` {data-commentary-width=300} 
+### Check Spark **performance metrics** using `sysstat` Plot the performance metrics as an interactive time series {data-commentary-width=300} 
 
 ```{r}
 # date time   CPU %user %nice %system %iowait %steal %idle
@@ -399,7 +328,7 @@ runq|unit|99%
 
 Folder `dataout` contains sysstat metrics for CPU, memory, network, disk and proc, after you run the `collect-sar` and `parse-sar` commands inside the `jupyter` container. `head -n2 dataout/*.dat`
 
-### How can we improve **performance**?  {data-commentary-width=300} 
+### How can we **improve performance**?  {data-commentary-width=300} 
 
 - Consider Scala
 - Consider Dataframes
@@ -420,10 +349,10 @@ Folder `dataout` contains sysstat metrics for CPU, memory, network, disk and pro
 - Broadcast variables
 - Consider hardware acceleration for example, using FPGA to filter in the storage itself
 
-### Detect and predict a performance problem in distributed systems
+### Detect and **predict a performance problem** in distributed systems
 
 - Control charts for example, [qicharts](https://cran.r-project.org/web/packages/qicharts/vignettes/controlcharts.html)
-- Sliding window counters of errors to discover unexpected events. Ref Sandhya Menon's [thesis](https://webcache.googleusercontent.com/search?q=cache:cfh6qXwoNCkJ:https://pdfs.semanticscholar.org/3564/174625ef21cb916e9d245d5fdcbd0178fc9a.pdf+&cd=2&hl=en&ct=clnk&gl=us&client=ubuntu), 2006.
+- Sliding window counters of errors to discover unexpected events, in real time. Ref Sandhya Menon's [thesis](https://webcache.googleusercontent.com/search?q=cache:cfh6qXwoNCkJ:https://pdfs.semanticscholar.org/3564/174625ef21cb916e9d245d5fdcbd0178fc9a.pdf+&cd=2&hl=en&ct=clnk&gl=us&client=ubuntu), 2006.
 - Use clustering to identify hidden connections and patterns
 - Linear regression
 - Simple learning techniques such as Decision Trees or ensembles as [demonstrated](https://github.com/EarlGlynn/kc-r-users-caret-2017) by Earl in 2017 or use more advanced machine learning if necessary
