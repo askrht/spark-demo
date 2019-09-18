@@ -12,11 +12,11 @@ A mobile friendly presentation can be viewed [here](https://askrht.github.io/spa
 
 **Start here**
 
-  Data pipeline executes inside the docker containers, on a development machine. The entire pipeline is automated through a self documented makefile. Executing `make` command in the root of this repository will build the docker containers for spark and hadoop, start them, verify input data and generate the report
+  Data pipeline executes inside the docker containers, on a development machine. The entire pipeline is automated through a self documented makefile. Executing `make` command in the root of this repository will build the docker containers for Spark and Hadoop, start them, verify input data and generate the report
 
   Either execute `make` in the root of the repository or execute individual commands `make setup start verify report`. Most commands are idempotent
 
-   Explore other commands using `make help`
+  Explore other commands using `make help`
 
   ```
   $ make help
@@ -64,3 +64,11 @@ A mobile friendly presentation can be viewed [here](https://askrht.github.io/spa
 **When finished**
 
   Execute `make stop` on your host machine. This stops and removes the containers
+
+**Areas of improvement**
+
+1. HDFS should preferably be on a separate machine or a cluster. Same for Apache Spark
+1. Better management of data at rest
+1. Auto generate test data of adequate size and auto load it in Hadoop
+1. Add unit, functional and integration tests
+1. Add performance tests and harvest performance metrics for Apache Spark
